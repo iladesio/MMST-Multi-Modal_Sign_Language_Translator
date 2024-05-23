@@ -1,0 +1,25 @@
+  __  __ __  __  _____ _______                         
+ |  \/  |  \/  |/ ____|__   __|                        
+ | \  / | \  / | (___    | |                           
+ | |\/| | |\/| |\___ \   | |                           
+ | |  | | |  | |____) |  | |                           
+ |_|__|_|_|__|_|_____/ __|_|__            _____ _____  
+ |  __ \|  ____|/ ____|__   __|     /\   |  __ \_   _| 
+ | |__) | |__  | (___    | |       /  \  | |__) || |   
+ |  _  /|  __|  \___ \   | |      / /\ \ |  ___/ | |   
+ | | \ \| |____ ____) |  | |     / ____ \| |    _| |_  
+ |_|  \_\______|_____/   |_|    /_/    \_\_|   |_____| 
+                                                       
+                                                       
+Created by G.B 
+
+v.1.0.0 - 2024-05-23
+ADDED:
+- created FastAPI project
+- created /translate/text_to_sign API REST to translate from text to a sign language
+- validation for 'src' and 'trg' input parameters
+- created constants.py file with all the constants  
+FIXED:
+- 
+REMOVED:
+- Removed ciao.txt file
