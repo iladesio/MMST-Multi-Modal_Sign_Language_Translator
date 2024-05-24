@@ -12,38 +12,38 @@ import icon from "./icon.png";
 const userTestimonials = [
   {
     avatar: icon,
-    name: "Alex Johnson",
+    name: "Daniele Solombrino",
     occupation: "Developer",
     testimonial:
-      "Collaborating on this project has been an incredible learning experience.",
+      "Collaborating on this project has been an incredible learning experience, enhancing my skills in developing robust and efficient code.",
   },
   {
     avatar: icon,
-    name: "Maria Garcia",
+    name: "Ilaria De Sio",
     occupation: "UI/UX Designer",
     testimonial:
-      "Designing with the user in mind is what I love, and this project put that passion to the test.",
+      "Designing with the user in mind is what I love, and this project put that passion to the test by creating intuitive and engaging interfaces.",
   },
   {
     avatar: icon,
-    name: "Samantha Lee",
-    occupation: "Project Manager",
+    name: "Giuseppe Bello",
+    occupation: "Backend Developer",
     testimonial:
-      "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
+      "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork, ensuring seamless data management.",
   },
   {
     avatar: icon,
-    name: "James Kim",
-    occupation: "Quality Assurance",
+    name: "Federico Barreca",
+    occupation: "UI/UX Designer",
     testimonial:
-      "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
+      "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception, focusing on user-centric designs and functionality.",
   },
   {
     avatar: icon,
-    name: "Elena Rodriguez",
-    occupation: "Marketing Specialist",
+    name: "Matteo Mortella",
+    occupation: "Developer",
     testimonial:
-      "Marketing such an innovative product was both challenging and rewarding.",
+      "Developing innovative solutions for this project was both challenging and rewarding, allowing me to explore new technologies and approaches.",
   },
 ];
 
