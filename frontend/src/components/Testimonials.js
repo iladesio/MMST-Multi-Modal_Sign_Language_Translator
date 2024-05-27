@@ -15,35 +15,35 @@ const userTestimonials = [
     name: "Daniele Solombrino",
     occupation: "Developer",
     testimonial:
-      "Collaborating on this project has been an incredible learning experience, enhancing my skills in developing robust and efficient code.",
+      "Collaborating on this project has been an incredible learning experience.",
   },
   {
     avatar: icon,
     name: "Ilaria De Sio",
     occupation: "UI/UX Designer",
     testimonial:
-      "Designing with the user in mind is what I love, and this project put that passion to the test by creating intuitive and engaging interfaces.",
+      "Designing with the user in mind is what I love, and this project put that passion to the test.",
   },
   {
     avatar: icon,
     name: "Giuseppe Bello",
     occupation: "Backend Developer",
     testimonial:
-      "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork, ensuring seamless data management.",
+      "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
   },
   {
     avatar: icon,
     name: "Federico Barreca",
     occupation: "UI/UX Designer",
     testimonial:
-      "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception, focusing on user-centric designs and functionality.",
+      "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
   },
   {
     avatar: icon,
     name: "Matteo Mortella",
     occupation: "Developer",
     testimonial:
-      "Developing innovative solutions for this project was both challenging and rewarding, allowing me to explore new technologies and approaches.",
+      "Marketing such an innovative product was both challenging and rewarding.",
   },
 ];
 
