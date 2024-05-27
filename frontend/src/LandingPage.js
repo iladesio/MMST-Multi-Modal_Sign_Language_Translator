@@ -8,7 +8,6 @@ import AppAppBar from "./components/AppAppBar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
 import Testimonials from "./components/Testimonials";
-import Footer from "./components/Footer";
 
 export default function LandingPage() {
   const [mode, setMode] = React.useState("light"); // Gestisce solo il cambio del mode da chiaro a scuro

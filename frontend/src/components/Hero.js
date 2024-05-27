@@ -7,7 +7,6 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
-import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import PanToolIcon from "@mui/icons-material/PanTool";
 import {
   InputLabel,
@@ -91,7 +90,7 @@ export default function Hero() {
               fontSize: "clamp(3.5rem, 10vw, 4rem)",
             }}
           >
-            PolySign&nbsp;
+            MMSigns&nbsp;
             <Typography
               component="span"
               variant="h1"
