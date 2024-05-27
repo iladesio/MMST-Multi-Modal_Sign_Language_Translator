@@ -13,4 +13,4 @@ After the base64 encode of this file is crafted, the file is removed.
 
 It could be possible that a pose can't be produced for very short phrases. In that case, try to give as input a longer phrase. 
 
-Thank you and enjoy your tanslator!!!
+Thank you and enjoy your translator!!!
