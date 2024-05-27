@@ -13,13 +13,17 @@
                                                        
 Created by G.B 
 
-v.1.0.0 - 2024-05-23
+v.1.0.0 - Created on the 2024-05-23
 ADDED:
+- an exampes_frontend folder has been added which contains the js code to send an http request to translate/text_to_sign and handle its response
+- added the tmp folder to temporarily store the pose video
+- added the utils.py file which contains useful functions called from main.py
+- added the requirement.txt file 
 - created FastAPI project
 - created /translate/text_to_sign API REST to translate from text to a sign language
 - validation for 'src' and 'trg' input parameters
 - created constants.py file with all the constants  
 FIXED:
-- 
+- fixed the translate/text_to_sign REST API
 REMOVED:
 - Removed ciao.txt file
