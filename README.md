@@ -6,3 +6,5 @@ If you want to run the frontend run:
 
 cd frontend
 npm start
+
+and go to your browser
