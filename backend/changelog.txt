@@ -15,6 +15,11 @@ Created by G.B
 
 v.1.0.0 - Created on the 2024-05-23
 ADDED:
+- added /translate/text_to_text API
+- added /translate/audio_to_text API
+- added /translate/audio_to_sign API 
+- added /translate/sign_to_sign API
+- added /translate/sign_to_text API
 - an exampes_frontend folder has been added which contains the js code to send an http request to translate/text_to_sign and handle its response
 - added the tmp folder to temporarily store the pose video
 - added the utils.py file which contains useful functions called from main.py

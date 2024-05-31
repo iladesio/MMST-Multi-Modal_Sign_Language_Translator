@@ -10,6 +10,7 @@ It can be run with the command:<br><br>
 
 When the translate/text_to_sign API is called, an mp4 file is temporarily created in the /tmp folder of this project.
 After the base64 encode of this file is crafted, the file is removed. 
+Similarly, when the base64 encoding of an audio file is given as input, a wav file is temporarily created in the /tmp folder and then it is removed.
 
 It could be possible that a pose can't be produced for very short phrases. In that case, try to give as input a longer phrase. 
 
