@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from "react";
 import { alpha } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -60,7 +60,6 @@ export default function Hero() {
             color="text.secondary"
             sx={{ alignSelf: 'center', width: { sm: '100%', md: '80%' } }}
           >
-            Essahsahsahashahgshahsg
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}

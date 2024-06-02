@@ -1,9 +1,10 @@
-audio2numpy==0.1.2
 deepl==1.18.0
-fastapi==0.111.0
-openai_whisper==20231117
+fastapi
+openai_whisper
 pose_format==0.4.1
 pydantic==2.7.2
 python-dotenv==1.0.1
 Requests==2.32.3
 soundfile==0.12.1
+opencv-python
+vidgear

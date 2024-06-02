@@ -1,4 +1,5 @@
-import * as React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { alpha } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,6 +27,7 @@ export default function Hero() {
   const [sourceText, setSourceText] = React.useState("");
   const [translatedText, setTranslatedText] = React.useState("");
   const [file, setFile] = React.useState(null);
+  const [videoSrc, setVideoSrc] = useState("");
 
   const handleChangeSource = (event) => {
     setSourceLanguage(event.target.value);
@@ -40,10 +42,46 @@ export default function Hero() {
     setTargetLanguage(sourceLanguage);
   };
 
-  const handleTranslate = () => {
-    // Logic to handle translation
-    // For now, we just copy the text for demonstration
-    setTranslatedText(sourceText);
+  const handleTranslate = async () => {
+    if (!sourceText || !sourceLanguage || !targetLanguage) {
+      console.error("Invalid input data");
+      return;
+    }
+
+    const url = "http://localhost:8000/translate/text_to_sign";
+    const requestBody = {
+      text: sourceText,
+      src: sourceLanguage,
+      trg: targetLanguage,
+    };
+
+    console.log("Request Body:", requestBody);
+
+    try {
+      const response = await axios.post(url, requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        const base64Data = response.data.pose;
+        const binaryString = atob(base64Data);
+        const byteArray = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          byteArray[i] = binaryString.charCodeAt(i);
+        }
+
+        const blob = new Blob([byteArray], { type: "video/mp4" });
+        const videoUrl = URL.createObjectURL(blob);
+        setVideoSrc(videoUrl);
+      } else {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error during translation:", error);
+      console.error("Response Data:", error.response?.data);
+    }
   };
 
   const handleFileChange = (event) => {
@@ -181,7 +219,17 @@ export default function Hero() {
                   </MenuItem>
                 </Select>
               </FormControl>
-              <Box sx={{ display: "flex", alignItems: "flex-end", mt: 2 }}>
+
+              <Box
+                sx={{
+                  marginTop: theme.spacing(4),
+                  padding: theme.spacing(2),
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: theme.shape.borderRadius,
+                  backgroundColor: theme.palette.background.paper,
+                  minHeight: 200,
+                }}
+              >
                 <TextField
                   label="Enter text or attach media"
                   fullWidth
@@ -236,7 +284,7 @@ export default function Hero() {
                   <MenuItem value="en">🇺🇸 English</MenuItem>
                   <MenuItem value="it">🇮🇹 Italian</MenuItem>
                   <MenuItem value="es">🇪🇸 Spanish</MenuItem>
-                  <MenuItem value="asl">
+                  <MenuItem value="bfi">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
@@ -260,36 +308,70 @@ export default function Hero() {
                 </Select>
               </FormControl>
 
-              <TextField
-                label="Translation"
-                fullWidth
-                margin="normal"
-                value={translatedText}
-                InputProps={{
-                  readOnly: true,
+              <Box
+                sx={{
+                  marginTop: theme.spacing(4),
+                  padding: theme.spacing(2),
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: theme.shape.borderRadius,
+                  backgroundColor: theme.palette.background.paper,
+                  minHeight: 200,
                 }}
-                multiline
-                rows={4}
-                variant="outlined"
-                sx={{ marginTop: theme.spacing(4) }}
-              />
-              <Typography
-                variant="body1"
-                sx={{ mt: 1, whiteSpace: "pre-line" }}
               >
-                {translatedText}
-              </Typography>
+                {videoSrc && (
+                  <Box mb={2}>
+                    <video width="100%" controls>
+                      <source src={videoSrc} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </Box>
+                )}
+                <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+                  {translatedText}
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button
-              onClick={handleTranslate}
-              variant="contained"
-              color="primary"
-            >
-              Translate
-            </Button>
-          </Box>
+          <Grid
+            item
+            xs={12}
+            container
+            justifyContent="center"
+            spacing={2}
+            sx={{ mt: 2 }}
+          >
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleTranslate}
+                startIcon={<PanToolIcon />}
+              >
+                Translate
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="secondary"
+                component="label"
+                startIcon={<AttachFileIcon />}
+              >
+                Upload File
+                <input type="file" hidden onChange={handleFileChange} />
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleAudioRecord}
+                startIcon={<MicIcon />}
+              >
+                Record Audio
+              </Button>
+            </Grid>
+          </Grid>
         </Box>
       </Container>
     </Box>
