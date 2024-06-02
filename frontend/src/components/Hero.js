@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { alpha } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -16,25 +16,30 @@ import {
   Grid,
   FormControl,
   IconButton,
-  InputAdornment,
 } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MicIcon from "@mui/icons-material/Mic";
 import VideocamIcon from "@mui/icons-material/Videocam";
-import { ReactMediaRecorder } from "react-media-recorder";
+import RestoreIcon from "@mui/icons-material/Restore";
 
 export default function Hero() {
-  const [sourceLanguage, setSourceLanguage] = React.useState("en");
-  const [targetLanguage, setTargetLanguage] = React.useState("it");
-  const [sourceText, setSourceText] = React.useState("");
-  const [translatedText, setTranslatedText] = React.useState("");
-  const [file, setFile] = React.useState(null);
+  const [sourceLanguage, setSourceLanguage] = useState("en");
+  const [targetLanguage, setTargetLanguage] = useState("it");
+  const [sourceText, setSourceText] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
+  const [file, setFile] = useState(null);
 
   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
   const [isRecordingVideo, setIsRecordingVideo] = useState(false);
   const [audioSrc, setAudioSrc] = useState("");
   const [videoSrc, setVideoSrc] = useState("");
+  const [uploadedVideoSrc, setUploadedVideoSrc] = useState("");
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState("");
+
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+  const streamRef = useRef(null);
 
   const handleChangeSource = (event) => {
     setSourceLanguage(event.target.value);
@@ -92,34 +97,62 @@ export default function Hero() {
   };
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-    // Potentially handle file upload or processing here
+    const file = event.target.files[0];
+    if (file) {
+      const videoUrl = URL.createObjectURL(file);
+      setUploadedVideoSrc(videoUrl);
+      setFile(file);
+    }
   };
 
   const handleAudioRecord = () => {
     if (isRecordingAudio) {
-      // Stop recording audio and save it
       setIsRecordingAudio(false);
-      // Simulate saving audio file (you need to implement actual logic)
       setAudioSrc("path_to_saved_audio_file");
     } else {
-      // Start recording audio
       setIsRecordingAudio(true);
-      // Implement logic to start recording audio
     }
   };
 
-  const handleVideoRecord = () => {
+  const handleVideoRecord = async () => {
     if (isRecordingVideo) {
-      // Stop recording video and save it
+      mediaRecorderRef.current.stop();
+      streamRef.current.getTracks().forEach((track) => track.stop());
       setIsRecordingVideo(false);
-      // Simulate saving video file (you need to implement actual logic)
-      setVideoSrc("path_to_saved_video_file");
     } else {
-      // Start recording video
+      setRecordedVideoUrl("");
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: "video/webm",
+      });
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: "video/webm",
+        });
+        const videoUrl = URL.createObjectURL(blob);
+        setRecordedVideoUrl(videoUrl);
+        recordedChunksRef.current = [];
+      };
+
+      mediaRecorderRef.current.start();
       setIsRecordingVideo(true);
-      // Implement logic to start recording video
     }
+  };
+
+  const handleReset = () => {
+    setRecordedVideoUrl("");
+    setUploadedVideoSrc("");
+    setVideoSrc("");
+    setSourceText("");
   };
 
   const theme = useTheme();
@@ -259,19 +292,38 @@ export default function Hero() {
                   minHeight: 200,
                 }}
               >
-                <TextField
-                  label="Enter text or attach media"
-                  fullWidth
-                  margin="normal"
-                  value={sourceText}
-                  onChange={(e) => setSourceText(e.target.value)}
-                  multiline
-                  rows={4}
-                  variant="outlined"
-                />
+                {!isRecordingVideo &&
+                  !recordedVideoUrl &&
+                  !uploadedVideoSrc && (
+                    <TextField
+                      label="Enter text or attach media"
+                      fullWidth
+                      margin="normal"
+                      value={sourceText}
+                      onChange={(e) => setSourceText(e.target.value)}
+                      multiline
+                      rows={4}
+                      variant="outlined"
+                    />
+                  )}
+                {uploadedVideoSrc && (
+                  <Box mt={2}>
+                    <video width="100%" controls>
+                      <source src={uploadedVideoSrc} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </Box>
+                )}
+                {recordedVideoUrl && (
+                  <Box mt={2}>
+                    <video width="100%" controls>
+                      <source src={recordedVideoUrl} type="video/webm" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </Box>
+                )}
               </Box>
             </Grid>
-            {/*<Divider orientation="vertical" flexItem sx={{ mx: 2, height: '100%' }} />*/}
             <Grid item>
               <IconButton
                 onClick={handleSwapLanguages}
@@ -368,8 +420,13 @@ export default function Hero() {
                 component="label"
                 startIcon={<AttachFileIcon />}
               >
-                Upload File
-                <input type="file" hidden onChange={handleFileChange} />
+                Upload Video
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleFileChange}
+                  accept="video/*"
+                />
               </Button>
             </Grid>
             <Grid item>
@@ -402,6 +459,16 @@ export default function Hero() {
                 ) : (
                   "Record Video"
                 )}
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleReset}
+                startIcon={<RestoreIcon />}
+              >
+                Reset
               </Button>
             </Grid>
           </Grid>
