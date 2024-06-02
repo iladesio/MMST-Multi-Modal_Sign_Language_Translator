@@ -7,39 +7,43 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
-import icon from "./icon.png";
+import FemaleIcon from "./FemaleIcon.png";
+import MaleIcon1 from "./male_icon.png";
+import MaleIcon2 from "./male_icon2.png";
+import MaleIcon3 from "./male_icon3.png";
+import MaleIcon4 from "./male_icon4.png";
 
 const userTestimonials = [
   {
-    avatar: icon,
+    avatar: MaleIcon1,
     name: "Daniele Solombrino",
     occupation: "Developer",
     testimonial:
       "Collaborating on this project has been an incredible learning experience.",
   },
   {
-    avatar: icon,
+    avatar: FemaleIcon,
     name: "Ilaria De Sio",
     occupation: "UI/UX Designer",
     testimonial:
       "Designing with the user in mind is what I love, and this project put that passion to the test.",
   },
   {
-    avatar: icon,
+    avatar: MaleIcon2,
     name: "Giuseppe Bello",
     occupation: "Backend Developer",
     testimonial:
       "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
   },
   {
-    avatar: icon,
+    avatar: MaleIcon3,
     name: "Federico Barreca",
     occupation: "UI/UX Designer",
     testimonial:
       "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
   },
   {
-    avatar: icon,
+    avatar: MaleIcon4,
     name: "Matteo Mortella",
     occupation: "Developer",
     testimonial:

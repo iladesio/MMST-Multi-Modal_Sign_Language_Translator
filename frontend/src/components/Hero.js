@@ -21,12 +21,19 @@ import {
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MicIcon from "@mui/icons-material/Mic";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import { ReactMediaRecorder } from "react-media-recorder";
+
 export default function Hero() {
   const [sourceLanguage, setSourceLanguage] = React.useState("en");
   const [targetLanguage, setTargetLanguage] = React.useState("it");
   const [sourceText, setSourceText] = React.useState("");
   const [translatedText, setTranslatedText] = React.useState("");
   const [file, setFile] = React.useState(null);
+
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [isRecordingVideo, setIsRecordingVideo] = useState(false);
+  const [audioSrc, setAudioSrc] = useState("");
   const [videoSrc, setVideoSrc] = useState("");
 
   const handleChangeSource = (event) => {
@@ -90,7 +97,29 @@ export default function Hero() {
   };
 
   const handleAudioRecord = () => {
-    // Logic to handle audio recording or uploading
+    if (isRecordingAudio) {
+      // Stop recording audio and save it
+      setIsRecordingAudio(false);
+      // Simulate saving audio file (you need to implement actual logic)
+      setAudioSrc("path_to_saved_audio_file");
+    } else {
+      // Start recording audio
+      setIsRecordingAudio(true);
+      // Implement logic to start recording audio
+    }
+  };
+
+  const handleVideoRecord = () => {
+    if (isRecordingVideo) {
+      // Stop recording video and save it
+      setIsRecordingVideo(false);
+      // Simulate saving video file (you need to implement actual logic)
+      setVideoSrc("path_to_saved_video_file");
+    } else {
+      // Start recording video
+      setIsRecordingVideo(true);
+      // Implement logic to start recording video
+    }
   };
 
   const theme = useTheme();
@@ -239,24 +268,6 @@ export default function Hero() {
                   multiline
                   rows={4}
                   variant="outlined"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton color="primary" component="label">
-                          <AttachFileIcon />
-                          <input
-                            type="file"
-                            hidden
-                            onChange={handleFileChange}
-                            accept="video/*,audio/*"
-                          />
-                        </IconButton>
-                        <IconButton color="primary" onClick={handleAudioRecord}>
-                          <MicIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               </Box>
             </Grid>
@@ -368,7 +379,29 @@ export default function Hero() {
                 onClick={handleAudioRecord}
                 startIcon={<MicIcon />}
               >
-                Record Audio
+                {isRecordingAudio ? (
+                  <>
+                    <span className="blinking-dot"></span>Recording Audio
+                  </>
+                ) : (
+                  "Record Audio"
+                )}
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                style={{ backgroundColor: "orange", color: "white" }}
+                variant="contained"
+                onClick={handleVideoRecord}
+                startIcon={<VideocamIcon />}
+              >
+                {isRecordingVideo ? (
+                  <>
+                    <span className="blinking-dot"></span>Recording Video
+                  </>
+                ) : (
+                  "Record Video"
+                )}
               </Button>
             </Grid>
           </Grid>
