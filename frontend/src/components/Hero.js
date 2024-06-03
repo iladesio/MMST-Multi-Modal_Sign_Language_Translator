@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { alpha } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -22,6 +22,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import MicIcon from "@mui/icons-material/Mic";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import RestoreIcon from "@mui/icons-material/Restore";
+import WaveSurfer from "wavesurfer.js";
 
 export default function Hero() {
   const [sourceLanguage, setSourceLanguage] = useState("en");
@@ -29,17 +30,16 @@ export default function Hero() {
   const [sourceText, setSourceText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [file, setFile] = useState(null);
-
   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
   const [isRecordingVideo, setIsRecordingVideo] = useState(false);
   const [audioSrc, setAudioSrc] = useState("");
   const [videoSrc, setVideoSrc] = useState("");
   const [uploadedVideoSrc, setUploadedVideoSrc] = useState("");
   const [recordedVideoUrl, setRecordedVideoUrl] = useState("");
-
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const streamRef = useRef(null);
+  const waveSurferRef = useRef(null);
 
   const handleChangeSource = (event) => {
     setSourceLanguage(event.target.value);
@@ -50,8 +50,9 @@ export default function Hero() {
   };
 
   const handleSwapLanguages = () => {
+    const temp = sourceLanguage;
     setSourceLanguage(targetLanguage);
-    setTargetLanguage(sourceLanguage);
+    setTargetLanguage(temp);
   };
 
   const handleTranslate = async () => {
@@ -87,6 +88,7 @@ export default function Hero() {
         const blob = new Blob([byteArray], { type: "video/mp4" });
         const videoUrl = URL.createObjectURL(blob);
         setVideoSrc(videoUrl);
+        setTranslatedText(response.data.translatedText); // Assuming translatedText is returned by the API
       } else {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -105,14 +107,61 @@ export default function Hero() {
     }
   };
 
-  const handleAudioRecord = () => {
+  const handleAudioRecord = async () => {
     if (isRecordingAudio) {
+      mediaRecorderRef.current.stop();
+      streamRef.current.getTracks().forEach((track) => track.stop());
       setIsRecordingAudio(false);
-      setAudioSrc("path_to_saved_audio_file");
     } else {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: "audio/webm",
+        });
+        const audioUrl = URL.createObjectURL(blob);
+        setAudioSrc(audioUrl);
+        recordedChunksRef.current = [];
+      };
+
+      mediaRecorderRef.current.start();
       setIsRecordingAudio(true);
     }
   };
+
+  useEffect(() => {
+    if (audioSrc) {
+      if (waveSurferRef.current) {
+        waveSurferRef.current.destroy();
+      }
+      waveSurferRef.current = WaveSurfer.create({
+        container: "#waveform",
+        waveColor: "violet",
+        progressColor: "purple",
+      });
+      waveSurferRef.current.load(audioSrc);
+    }
+  }, [audioSrc]);
+
+  useEffect(() => {
+    return () => {
+      if (waveSurferRef.current) {
+        waveSurferRef.current.destroy();
+        waveSurferRef.current = null;
+      }
+    };
+  }, []);
 
   const handleVideoRecord = async () => {
     if (isRecordingVideo) {
@@ -120,7 +169,6 @@ export default function Hero() {
       streamRef.current.getTracks().forEach((track) => track.stop());
       setIsRecordingVideo(false);
     } else {
-      setRecordedVideoUrl("");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       streamRef.current = stream;
 
@@ -153,6 +201,12 @@ export default function Hero() {
     setUploadedVideoSrc("");
     setVideoSrc("");
     setSourceText("");
+    setTranslatedText("");
+    setAudioSrc("");
+    if (waveSurferRef.current) {
+      waveSurferRef.current.destroy();
+      waveSurferRef.current = null;
+    }
   };
 
   const theme = useTheme();
@@ -218,15 +272,9 @@ export default function Hero() {
           sx={{
             mt: { xs: 8, sm: 10 },
             alignSelf: "center",
-            minHeight: { xs: 200, sm: 500 },
+            minHeight: { xs: 233, sm: 300 },
             width: "100%",
-            backgroundImage:
-              theme.palette.mode === "light"
-                ? 'url("/static/images/templates/templates-images/hero-light.png")'
-                : 'url("/static/images/templates/templates-images/hero-dark.png")',
-            backgroundSize: "cover",
-            borderRadius: "10px",
-            outline: "1px solid",
+            outline: "none",
             outlineColor:
               theme.palette.mode === "light"
                 ? alpha("#BFCCD9", 0.5)
@@ -294,7 +342,8 @@ export default function Hero() {
               >
                 {!isRecordingVideo &&
                   !recordedVideoUrl &&
-                  !uploadedVideoSrc && (
+                  !uploadedVideoSrc &&
+                  !audioSrc && (
                     <TextField
                       label="Enter text or attach media"
                       fullWidth
@@ -320,6 +369,14 @@ export default function Hero() {
                       <source src={recordedVideoUrl} type="video/webm" />
                       Your browser does not support the video tag.
                     </video>
+                  </Box>
+                )}
+                {audioSrc && (
+                  <Box mt={2} sx={{ width: "100%", height: "100px" }}>
+                    <div id="waveform"></div>
+                    <Button onClick={() => waveSurferRef.current.playPause()}>
+                      Play / Pause
+                    </Button>
                   </Box>
                 )}
               </Box>
@@ -381,17 +438,26 @@ export default function Hero() {
                   minHeight: 200,
                 }}
               >
+                {!videoSrc && (
+                  <TextField
+                    label="Translated text or media"
+                    fullWidth
+                    margin="normal"
+                    value={translatedText}
+                    onChange={(e) => setTranslatedText(e.target.value)}
+                    multiline
+                    rows={4}
+                    variant="outlined"
+                  />
+                )}
                 {videoSrc && (
-                  <Box mb={2}>
+                  <Box mt={2}>
                     <video width="100%" controls>
                       <source src={videoSrc} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   </Box>
                 )}
-                <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-                  {translatedText}
-                </Typography>
               </Box>
             </Grid>
           </Grid>
@@ -401,7 +467,7 @@ export default function Hero() {
             container
             justifyContent="center"
             spacing={2}
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, mb: 2 }}
           >
             <Grid item>
               <Button
