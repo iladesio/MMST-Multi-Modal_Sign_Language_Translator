@@ -266,3 +266,5 @@ multimodal/bin/activate.fish
 multimodal/bin/activate.csh
 multimodal/bin/activate
 multimodal/pyvenv.cfg
+frontend/package.json
+frontend/package-lock.json

@@ -2,6 +2,11 @@
 
 This folder represents the implementation of some API REST for the translation between textual language and sign language.
 
+To install the required dependencies of backend on your machine, open terminal in the backend folder and type: 
+pip install -r requirements.txt
+
+Eventually, create the folder tmp in backend. 
+
 The project is developed using the FastAPI framework. <br>
 It can be run with the command:<br><br>
 <i>fastapi dev main.py</i>
