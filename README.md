@@ -8,11 +8,11 @@ You also need nodeJS to run the npm command, you can download it from: https://n
 
 the following npm install instruction can be skipped after the first launch.
 
-Then on another terminal open in the main folder, if you want to run the frontend run:
-cd frontend
-npm install package.json
-npm install wavesurfer.js
-npm start
+Then on another terminal open in the main folder, if you want to run the frontend run:</br>
+cd frontend</br>
+npm install package.json</br>
+npm install wavesurfer.js</br>
+npm start</br>
 
 and go to your browser
 
