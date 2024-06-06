@@ -8,7 +8,7 @@ import whisper
 import os
 import utils
 import requests
-#import audio2numpy as a2n
+import audio2numpy as a2n
 
 import base64
 import random
