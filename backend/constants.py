@@ -7,6 +7,8 @@ TEXT_TO_SIGNED_BASE_URL = (
     "https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose"
 )
 
+CHATGPT_MODEL = 'gpt-3.5-turbo'
+
 # set of sentences for sign to text translation
 SENTENCES = [
     "The quick brown fox jumps over the lazy dog.",

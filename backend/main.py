@@ -9,7 +9,7 @@ import os
 import utils
 import requests
 import audio2numpy as a2n
-
+from openai import OpenAI
 import base64
 import random
 import soundfile as sf
@@ -140,24 +140,35 @@ class SignToText(BaseModel):
 @app.post("/translate/sign_to_text", status_code=200)
 async def sign_to_text(req: SignToText):
 
-    try:
-        # randomly choose a sentence
-        text = random.choice(constants.SENTENCES)
-        # translate randomly extracted text into the trg language
-        translator = deepl.Translator(os.getenv("DEEPL_API_KEY"))
-        text_info = translator.translate_text(
-            text, source_lang="en", target_lang="en-us" if req.trg == "en" else req.trg
-        )
-        return {"result": str(text_info)}
-        # return {"text": text_info["text"]}
+    client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error: Something went wrong. [ERROR: '"
-            + str(e)
-            + "']",
-        )
+    response = client.chat.completions.create(
+    model=constants.CHATGPT_MODEL,
+    messages=[
+        {"role": "system", "content": "Translate this sentence into spanish language: '" + req.src + "'. Provide me only the translation without any other response." }
+    ],
+    )
+
+    return {"result": response}
+
+    #try:
+    #    # randomly choose a sentence
+    #    text = random.choice(constants.SENTENCES)
+    #    # translate randomly extracted text into the trg language
+    #    translator = deepl.Translator(os.getenv("DEEPL_API_KEY"))
+    #    text_info = translator.translate_text(
+    #        text, source_lang="en", target_lang="en-us" if req.trg == "en" else req.trg
+    #    )
+    #    return {"result": str(text_info)}
+    #    # return {"text": text_info["text"]}
+
+    #except Exception as e:
+    #    raise HTTPException(
+    #        status_code=500,
+    #        detail="Internal Server Error: Something went wrong. [ERROR: '"
+    #        + str(e)
+    #        + "']",
+    #    )
 
 
 # Object tha represents a SignToText request.
