@@ -110,13 +110,19 @@ export default function Hero() {
   const createAudioRequest = async (audioSrc, src, trg) => {
     const response = await fetch(audioSrc);
     const audioBlob = await response.blob();
-    const formData = new FormData();
-    formData.append("audio", audioBlob, "audio.webm");
-    formData.append("src", src);
-    formData.append("trg", trg);
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const base64Audio = btoa(
+      String.fromCharCode(...new Uint8Array(arrayBuffer))
+    );
+
+    const requestBody = {
+      base64Audio: base64Audio,
+      src: src,
+      trg: trg,
+    };
     return {
       url: "http://localhost:8000/translate/audio_to_text",
-      requestBody: formData,
+      requestBody: JSON.stringify(requestBody),
       headers: { "Content-Type": "application/json" },
     };
   };
@@ -291,7 +297,7 @@ export default function Hero() {
     }
   };
 
-  async function getBase64(file) {
+  /*async function getBase64(file) {
     var reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = function () {
@@ -301,7 +307,7 @@ export default function Hero() {
     reader.onerror = function (error) {
       return error;
     };
-  }
+  }*/
 
   const theme = useTheme();
 
