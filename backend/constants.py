@@ -1,11 +1,13 @@
-#all the possible source languages
-LANGUAGE_DICT = ["it", "en", "fr", "de", "es"]
-#all the possible signed languages
-SIGNED_LANGUAGES_DICT = ["ise", "bfi", "fsl", "gsg", "ssp"]
-#sign.mt url for translate text to a pose
-TEXT_TO_SIGNED_BASE_URL = "https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose"
+# all the possible source languages
+LANGUAGE_DICT = ["it", "en", "es"]
+# all the possible signed languages
+SIGNED_LANGUAGES_DICT = ["ase", "ise", "bfi", "ssp"]
+# sign.mt url for translate text to a pose
+TEXT_TO_SIGNED_BASE_URL = (
+    "https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose"
+)
 
-#set of sentences for sign to text translation
+# set of sentences for sign to text translation
 SENTENCES = [
     "The quick brown fox jumps over the lazy dog.",
     "A journey of a thousand miles begins with a single step.",
@@ -26,5 +28,5 @@ SENTENCES = [
     "Actions speak louder than words.",
     "Where there is a will, there is a way.",
     "Fortune favors the bold.",
-    "Rome wasn't built in a day."
+    "Rome wasn't built in a day.",
 ]

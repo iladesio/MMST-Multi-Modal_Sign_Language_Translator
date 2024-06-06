@@ -56,46 +56,128 @@ export default function Hero() {
   };
 
   const handleTranslate = async () => {
-    if (!sourceText || !sourceLanguage || !targetLanguage) {
+    if (!sourceText && !file && !audioSrc && !recordedVideoUrl) {
       console.error("Invalid input data");
       return;
     }
 
-    const url = "http://localhost:8000/translate/text_to_sign";
-    const requestBody = {
-      text: sourceText,
-      src: sourceLanguage,
-      trg: targetLanguage,
-    };
+    let url, requestBody, headers;
+    const signLanguages = ["ase", "ise", "bfi", "ssp"];
+    const isSignLanguage = signLanguages.includes(targetLanguage);
 
-    console.log("Request Body:", requestBody);
+    if (sourceText) {
+      ({ url, requestBody, headers } = isSignLanguage
+        ? createTextToSignRequest(sourceText, sourceLanguage, targetLanguage)
+        : createTextToTextRequest(sourceText, sourceLanguage, targetLanguage));
+    } else if (audioSrc) {
+      ({ url, requestBody, headers } = await createAudioRequest(
+        audioSrc,
+        sourceLanguage,
+        targetLanguage
+      ));
+    } else if (recordedVideoUrl || file) {
+      ({ url, requestBody, headers } = await createVideoRequest(
+        recordedVideoUrl || file,
+        sourceLanguage,
+        targetLanguage
+      ));
+    } else {
+      console.error("Unsupported input type");
+      return;
+    }
 
     try {
-      const response = await axios.post(url, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.status === 200) {
-        const base64Data = response.data.pose;
-        const binaryString = atob(base64Data);
-        const byteArray = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          byteArray[i] = binaryString.charCodeAt(i);
-        }
-
-        const blob = new Blob([byteArray], { type: "video/mp4" });
-        const videoUrl = URL.createObjectURL(blob);
-        setVideoSrc(videoUrl);
-        setTranslatedText(response.data.translatedText); // Assuming translatedText is returned by the API
-      } else {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      const response = await axios.post(url, requestBody, { headers });
+      handleResponse(response, isSignLanguage);
     } catch (error) {
       console.error("Error during translation:", error);
       console.error("Response Data:", error.response?.data);
     }
+  };
+
+  const createTextToSignRequest = (text, src, trg) => ({
+    url: "http://localhost:8000/translate/text_to_sign",
+    requestBody: { text, src, trg },
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const createTextToTextRequest = (text, src, trg) => ({
+    url: "http://localhost:8000/translate/text_to_text",
+    requestBody: { text, src, trg },
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const createAudioRequest = async (audioSrc, src, trg) => {
+    const response = await fetch(audioSrc);
+    const audioBlob = await response.blob();
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "audio.webm");
+    formData.append("src", src);
+    formData.append("trg", trg);
+    return {
+      url: "http://localhost:8000/translate/audio_to_text",
+      requestBody: formData,
+      headers: { "Content-Type": "application/json" },
+    };
+  };
+
+  const createVideoRequest = async (videoSrc, src, trg) => {
+    const response = await fetch(videoSrc);
+    const videoBlob = await response.blob();
+
+    const toBase64 = (videoBlob) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(videoBlob);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+
+    const base64Video = await toBase64(videoBlob);
+    //console.log(base64Video);
+    /*const formData = new FormData();
+      console.log(reader);
+      console.log(videoBlob);*/
+    /*formData.append("base64Video", result);
+      formData.append("src", src);
+      formData.append("trg", trg);
+      console.log("result:" + result);
+      console.log(formData);*/
+    return {
+      url: "http://localhost:8000/translate/sign_to_text",
+      requestBody: { base64Video, src, trg },
+      headers: { "Content-Type": "application/json" },
+    };
+  };
+
+  const handleResponse = (response, isSignLanguage) => {
+    if (response.status === 200) {
+      if (isSignLanguage) {
+        const { pose, translatedVideo } = response.data;
+        if (pose) {
+          const videoUrl = createBlobUrl(pose, "video/mp4");
+          setVideoSrc(videoUrl);
+        }
+        if (translatedVideo) {
+          const videoUrl = createBlobUrl(translatedVideo, "video/mp4");
+          setVideoSrc(videoUrl);
+        }
+      } else {
+        setTranslatedText(response.data.result);
+      }
+    } else {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+  };
+
+  const createBlobUrl = (base64Data, type) => {
+    const binaryString = atob(base64Data);
+    const byteArray = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      byteArray[i] = binaryString.charCodeAt(i);
+    }
+    const blob = new Blob([byteArray], { type });
+    return URL.createObjectURL(blob);
   };
 
   const handleFileChange = (event) => {
@@ -209,6 +291,18 @@ export default function Hero() {
     }
   };
 
+  async function getBase64(file) {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      console.log(reader);
+      return reader.result;
+    };
+    reader.onerror = function (error) {
+      return error;
+    };
+  }
+
   const theme = useTheme();
 
   return (
@@ -306,26 +400,33 @@ export default function Hero() {
                   <MenuItem value="en">🇺🇸 English</MenuItem>
                   <MenuItem value="it">🇮🇹 Italian</MenuItem>
                   <MenuItem value="es">🇪🇸 Spanish</MenuItem>
-                  <MenuItem value="asl">
+                  <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇺🇸 ASL (American Sign Language)
                   </MenuItem>
-                  <MenuItem value="lis">
+                  <MenuItem value="ise">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇮🇹 LIS (Italian Sign Language)
                   </MenuItem>
-                  <MenuItem value="bsl">
+                  <MenuItem value="bfi">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇬🇧 BSL (British Sign Language)
+                  </MenuItem>
+                  <MenuItem value="ssp">
+                    <PanToolIcon
+                      fontSize="small"
+                      style={{ marginRight: "5px", verticalAlign: "middle" }}
+                    />
+                    🇪🇸 LSE (Spanish Sign Language)
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -404,26 +505,33 @@ export default function Hero() {
                   <MenuItem value="en">🇺🇸 English</MenuItem>
                   <MenuItem value="it">🇮🇹 Italian</MenuItem>
                   <MenuItem value="es">🇪🇸 Spanish</MenuItem>
-                  <MenuItem value="bfi">
+                  <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇺🇸 ASL (American Sign Language)
                   </MenuItem>
-                  <MenuItem value="lis">
+                  <MenuItem value="ise">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇮🇹 LIS (Italian Sign Language)
                   </MenuItem>
-                  <MenuItem value="bsl">
+                  <MenuItem value="bfi">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
                     🇬🇧 BSL (British Sign Language)
+                  </MenuItem>
+                  <MenuItem value="ssp">
+                    <PanToolIcon
+                      fontSize="small"
+                      style={{ marginRight: "5px", verticalAlign: "middle" }}
+                    />
+                    🇪🇸 LSE (Spanish Sign Language)
                   </MenuItem>
                 </Select>
               </FormControl>
