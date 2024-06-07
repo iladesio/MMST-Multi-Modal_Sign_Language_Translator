@@ -216,9 +216,18 @@ export default function Hero() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      const fileType = file.type.split("/")[0];
+      if (fileType !== "video" && fileType !== "audio") {
+        setErrors({ sourceText: "Only video and audio files are allowed" });
+        return;
+      }
       resetInputs();
-      const videoUrl = URL.createObjectURL(file);
-      setUploadedVideoSrc(videoUrl);
+      const fileUrl = URL.createObjectURL(file);
+      if (fileType === "video") {
+        setUploadedVideoSrc(fileUrl);
+      } else if (fileType === "audio") {
+        setAudioSrc(fileUrl);
+      }
       setFile(file);
     }
   };
@@ -692,7 +701,7 @@ export default function Hero() {
                   type="file"
                   hidden
                   onChange={handleFileChange}
-                  accept="video/*"
+                  accept="video/*,audio/*"
                 />
               </Button>
             </Grid>
