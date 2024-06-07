@@ -8,3 +8,4 @@ Requests==2.32.3
 soundfile==0.12.1
 opencv-python
 vidgear
+audio2numpy
