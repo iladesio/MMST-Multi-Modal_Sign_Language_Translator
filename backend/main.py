@@ -18,6 +18,7 @@ from datetime import datetime
 from pose_format import Pose
 from pose_format.pose_visualizer import PoseVisualizer
 from dotenv import load_dotenv, dotenv_values
+import json
 
 # loading variables from .env file
 load_dotenv()
@@ -140,35 +141,62 @@ class SignToText(BaseModel):
 @app.post("/translate/sign_to_text", status_code=200)
 async def sign_to_text(req: SignToText):
 
-    client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
+    try:
 
-    response = client.chat.completions.create(
-    model=constants.CHATGPT_MODEL,
-    messages=[
-        {"role": "system", "content": "Translate this sentence into spanish language: '" + req.src + "'. Provide me only the translation without any other response." }
-    ],
-    )
+        # Decodifica la stringa base64
+        video_data = base64.b64decode(req.base64Video)
 
-    return {"result": response}
+        # Scrivi i dati decodificati in un file MP4
+        file_name = datetime.now().strftime("%Y_%m_%d_%H_%M_%S.mp4")
+        video_path = f"tmp/{file_name}"
+        with open(video_path, "wb") as video_file:
+            video_file.write(video_data)
 
-    #try:
-    #    # randomly choose a sentence
-    #    text = random.choice(constants.SENTENCES)
-    #    # translate randomly extracted text into the trg language
-    #    translator = deepl.Translator(os.getenv("DEEPL_API_KEY"))
-    #    text_info = translator.translate_text(
-    #        text, source_lang="en", target_lang="en-us" if req.trg == "en" else req.trg
-    #    )
-    #    return {"result": str(text_info)}
-    #    # return {"text": text_info["text"]}
+        output_folder = "./tmp/" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S_frames")
+        
+        utils.extract_frames(video_path, output_folder)
+        
+        # Legge i file estratti e li mette nella struttura `files`
+        images = []
+        for filename in os.listdir(output_folder):
+            if filename.endswith(".jpg"):
+                with open(os.path.join(output_folder, filename), "rb") as image_file:
+                    image_data = image_file.read()
+                    images.append(f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}")
+        
+        utils.deleteFile(video_path)
+        utils.deleteFolder(output_folder)
 
-    #except Exception as e:
-    #    raise HTTPException(
-    #        status_code=500,
-    #        detail="Internal Server Error: Something went wrong. [ERROR: '"
-    #        + str(e)
-    #        + "']",
-    #    )
+
+        content = [{"type": "text", "text": "Please analyze this sequence of frames extracted from a video. Answer ONLY with a UNIQUE translation from sign language to english, even if the answer is not accurate."}]
+        #content = [{"type": "text", "text": "Say hi"}]
+
+        for image in images:
+            content.append({"type": "image_url", "image_url": {"url": image}})
+
+        client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
+
+        response = client.chat.completions.create(
+        model=constants.CHATGPT_MODEL,
+        max_tokens=1024,
+        messages=[
+            {"role": "user", "content": content }
+        ],
+        )
+
+        try:
+            return {"result": response.choices[0].message.content}
+        except:
+            return {"error": "gpt-4o model is not able to calculate a response"}
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail="Internal Server Error: Something went wrong. [ERROR: '"
+            + str(e)
+            + "']",
+        )
+
 
 
 # Object tha represents a SignToText request.

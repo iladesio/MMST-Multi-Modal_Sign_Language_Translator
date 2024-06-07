@@ -2,6 +2,8 @@
 
 import base64 
 import os
+import cv2
+import shutil
 
 # this function creates the url of the GET request given the parameters and the url
 def build_url(base_url, params):
@@ -26,6 +28,11 @@ def deleteFile(file_path):
         os.remove(file_path)
 
 
+def deleteFolder(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+
 #check if the string given as input is base64 encoded
 def isBase64(input):
     try:
@@ -39,4 +46,26 @@ def base64_to_audio(base64_audio, output_file_path):
     # Write the binary data to a file
     with open(output_file_path, 'wb') as audio_file:
         audio_file.write(audio_data)
+
+# Funzione per estrarre i frame
+def extract_frames(video_path, output_folder, interval=0.2):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    # Aprire il video
+    vidcap = cv2.VideoCapture(video_path)
+    fps = vidcap.get(cv2.CAP_PROP_FPS)  # Frame per second
+    frame_interval = int(fps * interval)  # Intervallo di frame per l'estrazione
+    
+    frame_count = 0
+    success = True
+    while success:
+        success, image = vidcap.read()
+        if frame_count % frame_interval == 0 and success:
+            frame_path = os.path.join(output_folder, f"frame{frame_count:04d}.jpg")
+            cv2.imwrite(frame_path, image)  # Salva il frame come file JPG
+        frame_count += 1
+    
+    vidcap.release()
+
    
