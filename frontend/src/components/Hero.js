@@ -406,7 +406,7 @@ export default function Hero() {
             textAlign: "center",
           }}
         >
-          <Typography variant="h6" gutterBottom sx={{ color: "#e8559e" }}>
+          <Typography variant="h6" gutterBottom sx={{ color: "#D71D7A" }}>
             How to use the translator
           </Typography>
           <Typography variant="body1" paragraph>
@@ -665,9 +665,13 @@ export default function Hero() {
             <Grid item>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleTranslate}
                 startIcon={<PanToolIcon />}
+                sx={{
+                  backgroundColor: "#0471D7",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#0358A7" },
+                }}
               >
                 Translate
               </Button>
@@ -675,11 +679,15 @@ export default function Hero() {
             <Grid item>
               <Button
                 variant="contained"
-                color="secondary"
                 component="label"
                 startIcon={<AttachFileIcon />}
+                sx={{
+                  backgroundColor: "#D71D7A",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#C2185B" },
+                }}
               >
-                Upload Video
+                Upload File
                 <input
                   type="file"
                   hidden
@@ -706,7 +714,7 @@ export default function Hero() {
             </Grid>
             <Grid item>
               <Button
-                style={{ backgroundColor: "orange", color: "white" }}
+                style={{ backgroundColor: "#9E6700", color: "white" }}
                 variant="contained"
                 onClick={handleVideoRecord}
                 startIcon={<VideocamIcon />}
