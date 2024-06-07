@@ -16,6 +16,7 @@ import {
   Grid,
   FormControl,
   IconButton,
+  CircularProgress, // Import CircularProgress
 } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -36,6 +37,8 @@ export default function Hero() {
   const [videoSrc, setVideoSrc] = useState("");
   const [uploadedVideoSrc, setUploadedVideoSrc] = useState("");
   const [recordedVideoUrl, setRecordedVideoUrl] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // State for loading
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const streamRef = useRef(null);
@@ -43,6 +46,7 @@ export default function Hero() {
 
   const handleChangeSource = (event) => {
     setSourceLanguage(event.target.value);
+    resetInputs();
   };
 
   const handleChangeTarget = (event) => {
@@ -53,36 +57,66 @@ export default function Hero() {
     const temp = sourceLanguage;
     setSourceLanguage(targetLanguage);
     setTargetLanguage(temp);
+    resetInputs();
   };
 
   const handleTranslate = async () => {
+    const newErrors = {};
+
     if (!sourceText && !file && !audioSrc && !recordedVideoUrl) {
-      console.error("Invalid input data");
+      newErrors.sourceText = "Input is required";
+      setErrors(newErrors);
       return;
     }
+
+    setIsLoading(true); // Set loading to true when translation starts
 
     let url, requestBody, headers;
     const signLanguages = ["ase", "ise", "bfi", "ssp"];
     const isSignLanguage = signLanguages.includes(targetLanguage);
 
     if (sourceText) {
-      ({ url, requestBody, headers } = isSignLanguage
-        ? createTextToSignRequest(sourceText, sourceLanguage, targetLanguage)
-        : createTextToTextRequest(sourceText, sourceLanguage, targetLanguage));
+      if (isSignLanguage) {
+        ({ url, requestBody, headers } = createTextToSignRequest(
+          sourceText,
+          sourceLanguage,
+          targetLanguage
+        ));
+      } else {
+        ({ url, requestBody, headers } = createTextToTextRequest(
+          sourceText,
+          sourceLanguage,
+          targetLanguage
+        ));
+      }
     } else if (audioSrc) {
+      if (!audioSrc) {
+        newErrors.audioSrc = "Audio input is required for audio translation";
+        setErrors(newErrors);
+        setIsLoading(false); // Set loading to false if there's an error
+        return;
+      }
       ({ url, requestBody, headers } = await createAudioRequest(
         audioSrc,
         sourceLanguage,
         targetLanguage
       ));
     } else if (recordedVideoUrl || file) {
+      if (!recordedVideoUrl && !file) {
+        newErrors.videoSrc = "Video input is required for video translation";
+        setErrors(newErrors);
+        setIsLoading(false); // Set loading to false if there's an error
+        return;
+      }
       ({ url, requestBody, headers } = await createVideoRequest(
         recordedVideoUrl || file,
         sourceLanguage,
         targetLanguage
       ));
     } else {
-      console.error("Unsupported input type");
+      newErrors.sourceText = "Unsupported input type";
+      setErrors(newErrors);
+      setIsLoading(false); // Set loading to false if there's an error
       return;
     }
 
@@ -92,6 +126,8 @@ export default function Hero() {
     } catch (error) {
       console.error("Error during translation:", error);
       console.error("Response Data:", error.response?.data);
+    } finally {
+      setIsLoading(false); // Set loading to false after translation is complete
     }
   };
 
@@ -140,15 +176,6 @@ export default function Hero() {
       });
 
     const base64Video = await toBase64(videoBlob);
-    //console.log(base64Video);
-    /*const formData = new FormData();
-      console.log(reader);
-      console.log(videoBlob);*/
-    /*formData.append("base64Video", result);
-      formData.append("src", src);
-      formData.append("trg", trg);
-      console.log("result:" + result);
-      console.log(formData);*/
     return {
       url: "http://localhost:8000/translate/sign_to_text",
       requestBody: { base64Video, src, trg },
@@ -189,6 +216,7 @@ export default function Hero() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      resetInputs();
       const videoUrl = URL.createObjectURL(file);
       setUploadedVideoSrc(videoUrl);
       setFile(file);
@@ -196,6 +224,7 @@ export default function Hero() {
   };
 
   const handleAudioRecord = async () => {
+    resetInputs();
     if (isRecordingAudio) {
       mediaRecorderRef.current.stop();
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -252,6 +281,7 @@ export default function Hero() {
   }, []);
 
   const handleVideoRecord = async () => {
+    resetInputs();
     if (isRecordingVideo) {
       mediaRecorderRef.current.stop();
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -285,29 +315,23 @@ export default function Hero() {
   };
 
   const handleReset = () => {
-    setRecordedVideoUrl("");
-    setUploadedVideoSrc("");
-    setVideoSrc("");
-    setSourceText("");
+    resetInputs();
     setTranslatedText("");
+  };
+
+  const resetInputs = () => {
+    setSourceText("");
     setAudioSrc("");
+    setVideoSrc("");
+    setUploadedVideoSrc("");
+    setRecordedVideoUrl("");
+    setFile(null);
+    setErrors({});
     if (waveSurferRef.current) {
       waveSurferRef.current.destroy();
       waveSurferRef.current = null;
     }
   };
-
-  /*async function getBase64(file) {
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function () {
-      console.log(reader);
-      return reader.result;
-    };
-    reader.onerror = function (error) {
-      return error;
-    };
-  }*/
 
   const theme = useTheme();
 
@@ -367,6 +391,39 @@ export default function Hero() {
             Your Sign Language Translator in Pocket.
           </Typography>
         </Stack>
+        <Box
+          id="guide"
+          sx={{
+            mt: 4,
+            alignSelf: "center",
+            width: "80%",
+            maxWidth: 600,
+            padding: theme.spacing(4),
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: theme.shape.borderRadius,
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: `0 0 12px 4px ${alpha(theme.palette.primary.main, 0.1)}`,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ color: "#e8559e" }}>
+            How to use the translator
+          </Typography>
+          <Typography variant="body1" paragraph>
+            1. Select the <b>Source</b> and <b>Target languages</b>.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            2. Enter <b>Text</b> in the box, upload a <b>File</b>, or record an{" "}
+            <b>Audio</b> or <b>Video</b>.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            3. Click on <b>Translate</b> to get the translation.
+          </Typography>
+          <Typography variant="body1" paragraph>
+            4. Click on <b>Reset</b> to clear the current translation and start
+            a new.
+          </Typography>
+        </Box>
         <Box
           id="image"
           sx={{
@@ -456,10 +513,15 @@ export default function Hero() {
                       fullWidth
                       margin="normal"
                       value={sourceText}
-                      onChange={(e) => setSourceText(e.target.value)}
+                      onChange={(e) => {
+                        setSourceText(e.target.value);
+                        setErrors((prev) => ({ ...prev, sourceText: "" }));
+                      }}
                       multiline
                       rows={4}
                       variant="outlined"
+                      error={!!errors.sourceText}
+                      helperText={errors.sourceText}
                     />
                   )}
                 {uploadedVideoSrc && (
@@ -550,27 +612,44 @@ export default function Hero() {
                   borderRadius: theme.shape.borderRadius,
                   backgroundColor: theme.palette.background.paper,
                   minHeight: 200,
+                  position: "relative", // To position the loading spinner
                 }}
               >
-                {!videoSrc && (
-                  <TextField
-                    label="Translated text or media"
-                    fullWidth
-                    margin="normal"
-                    value={translatedText}
-                    onChange={(e) => setTranslatedText(e.target.value)}
-                    multiline
-                    rows={4}
-                    variant="outlined"
+                {isLoading ? ( // Show loading spinner when loading
+                  <CircularProgress
+                    size={24}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
                   />
-                )}
-                {videoSrc && (
-                  <Box mt={2}>
-                    <video width="100%" controls>
-                      <source src={videoSrc} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </Box>
+                ) : (
+                  <>
+                    {!videoSrc && (
+                      <TextField
+                        label="Translated text or media"
+                        fullWidth
+                        margin="normal"
+                        value={translatedText}
+                        onChange={(e) => setTranslatedText(e.target.value)}
+                        multiline
+                        rows={4}
+                        variant="outlined"
+                        error={!!errors.sourceText}
+                        helperText={errors.sourceText}
+                      />
+                    )}
+                    {videoSrc && (
+                      <Box mt={2}>
+                        <video width="100%" controls>
+                          <source src={videoSrc} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </Box>
+                    )}
+                  </>
                 )}
               </Box>
             </Grid>
