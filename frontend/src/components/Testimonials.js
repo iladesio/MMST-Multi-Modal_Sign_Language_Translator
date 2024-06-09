@@ -17,35 +17,35 @@ const userTestimonials = [
   {
     avatar: MaleIcon1,
     name: "Daniele Solombrino",
-    occupation: "Developer",
+    occupation: "M.Sc. Computer Science Student",
     testimonial:
       "Collaborating on this project has been an incredible learning experience.",
   },
   {
     avatar: FemaleIcon,
     name: "Ilaria De Sio",
-    occupation: "UI/UX Designer",
+    occupation: "M.Sc. Computer Science Student",
     testimonial:
       "Designing with the user in mind is what I love, and this project put that passion to the test.",
   },
   {
     avatar: MaleIcon2,
     name: "Giuseppe Bello",
-    occupation: "Backend Developer",
+    occupation: "M.Sc. Computer Science Student",
     testimonial:
       "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
   },
   {
     avatar: MaleIcon3,
     name: "Federico Barreca",
-    occupation: "UI/UX Designer",
+    occupation: "M.Sc. Computer Science Student",
     testimonial:
       "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
   },
   {
     avatar: MaleIcon4,
     name: "Matteo Mortella",
-    occupation: "Developer",
+    occupation: "M.Sc. Computer Science Student",
     testimonial:
       "Marketing such an innovative product was both challenging and rewarding.",
   },

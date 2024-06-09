@@ -1,8 +1,10 @@
 {
   "dependencies": {
     "franc": "^6.2.0",
+    "gtts": "^0.2.1",
     "mic-recorder-to-mp3": "^2.2.2",
     "react-media-recorder": "^1.6.6",
+    "react-speech-kit": "^3.0.1",
     "react-wavesurfer": "^0.8.6",
     "standardized-audio-context": "^25.3.72",
     "wavesurfer.js": "^7.7.15"

@@ -25,6 +25,8 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import RestoreIcon from "@mui/icons-material/Restore";
 import WaveSurfer from "wavesurfer.js";
 import Tooltip from "@mui/material/Tooltip";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import { useSpeechSynthesis } from "react-speech-kit";
 
 export default function Hero() {
   const [sourceLanguage, setSourceLanguage] = useState("en");
@@ -48,6 +50,18 @@ export default function Hero() {
   const countdownAudioRef = useRef(
     new Audio(process.env.PUBLIC_URL + "/beep.wav")
   );
+
+  const { speak, voices } = useSpeechSynthesis();
+
+  const voiceOptions = {
+    en: voices.find(
+      (voice) => voice.lang === "en-AU" && voice.name === "Karen"
+    ),
+    it: voices.find(
+      (voice) => voice.lang === "it-IT" && voice.name === "Alice"
+    ),
+    es: voices.find((voice) => voice.lang === "es-ES" && voice.name === ""),
+  };
 
   const languagesWithoutVideo = ["en", "es", "it"];
 
@@ -393,6 +407,14 @@ export default function Hero() {
     }
   };
 
+  const handleSpeak = () => {
+    const selectedVoice = voiceOptions[targetLanguage];
+    speak({
+      text: translatedText,
+      voice: selectedVoice,
+    });
+  };
+
   const theme = useTheme();
 
   return (
@@ -702,18 +724,25 @@ export default function Hero() {
                 ) : (
                   <>
                     {!videoSrc && (
-                      <TextField
-                        label="Translated text or media"
-                        fullWidth
-                        margin="normal"
-                        value={translatedText}
-                        onChange={(e) => setTranslatedText(e.target.value)}
-                        multiline
-                        rows={4}
-                        variant="outlined"
-                        error={!!errors.sourceText}
-                        helperText={errors.sourceText}
-                      />
+                      <Box display="flex" alignItems="center">
+                        <TextField
+                          label="Translated text or media"
+                          fullWidth
+                          margin="normal"
+                          value={translatedText}
+                          onChange={(e) => setTranslatedText(e.target.value)}
+                          multiline
+                          rows={4}
+                          variant="outlined"
+                          error={!!errors.sourceText}
+                          helperText={errors.sourceText}
+                        />
+                        <Tooltip title="Play Translation" arrow>
+                          <IconButton color="primary" onClick={handleSpeak}>
+                            <VolumeUpIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     )}
                     {videoSrc && (
                       <Box mt={2}>
