@@ -24,6 +24,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import RestoreIcon from "@mui/icons-material/Restore";
 import WaveSurfer from "wavesurfer.js";
+import Tooltip from "@mui/material/Tooltip";
 
 export default function Hero() {
   const [sourceLanguage, setSourceLanguage] = useState("en");
@@ -39,10 +40,16 @@ export default function Hero() {
   const [recordedVideoUrl, setRecordedVideoUrl] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false); // State for loading
+  const [countdown, setCountdown] = useState(0); // State for countdown
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const streamRef = useRef(null);
   const waveSurferRef = useRef(null);
+  const countdownAudioRef = useRef(
+    new Audio(process.env.PUBLIC_URL + "/beep.wav")
+  );
+
+  const languagesWithoutVideo = ["en", "es", "it"];
 
   const handleChangeSource = (event) => {
     setSourceLanguage(event.target.value);
@@ -232,6 +239,36 @@ export default function Hero() {
     }
   };
 
+  const startCountdown = (seconds, callback) => {
+    let remainingTime = seconds;
+    const countdownInterval = () => {
+      setCountdown(remainingTime);
+      if (remainingTime === 0) {
+        if (countdownAudioRef.current) {
+          countdownAudioRef.current.play().catch((error) => {
+            console.error("Error playing countdown audio:", error);
+          });
+        }
+        setTimeout(() => {
+          setCountdown("Recording!");
+          setTimeout(() => {
+            setCountdown(0); // Clear the message after a short delay
+            callback();
+          }, 300); // 500 ms delay before starting the recording
+        }, 1000);
+      } else {
+        if (countdownAudioRef.current) {
+          countdownAudioRef.current.play().catch((error) => {
+            console.error("Error playing countdown audio:", error);
+          });
+        }
+        remainingTime -= 1;
+        setTimeout(countdownInterval, 1000);
+      }
+    };
+    countdownInterval();
+  };
+
   const handleAudioRecord = async () => {
     resetInputs();
     if (isRecordingAudio) {
@@ -239,30 +276,72 @@ export default function Hero() {
       streamRef.current.getTracks().forEach((track) => track.stop());
       setIsRecordingAudio(false);
     } else {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
-      });
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          recordedChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(recordedChunksRef.current, {
-          type: "audio/webm",
+      startCountdown(3, async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
         });
-        const audioUrl = URL.createObjectURL(blob);
-        setAudioSrc(audioUrl);
-        recordedChunksRef.current = [];
-      };
+        streamRef.current = stream;
 
-      mediaRecorderRef.current.start();
-      setIsRecordingAudio(true);
+        mediaRecorderRef.current = new MediaRecorder(stream, {
+          mimeType: "audio/webm",
+        });
+
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorderRef.current.onstop = () => {
+          const blob = new Blob(recordedChunksRef.current, {
+            type: "audio/webm",
+          });
+          const audioUrl = URL.createObjectURL(blob);
+          setAudioSrc(audioUrl);
+          recordedChunksRef.current = [];
+        };
+
+        mediaRecorderRef.current.start();
+        setIsRecordingAudio(true);
+      });
+    }
+  };
+
+  const handleVideoRecord = async () => {
+    resetInputs();
+    if (isRecordingVideo) {
+      mediaRecorderRef.current.stop();
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      setIsRecordingVideo(false);
+    } else {
+      startCountdown(3, async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        streamRef.current = stream;
+
+        mediaRecorderRef.current = new MediaRecorder(stream, {
+          mimeType: "video/webm",
+        });
+
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorderRef.current.onstop = () => {
+          const blob = new Blob(recordedChunksRef.current, {
+            type: "video/webm",
+          });
+          const videoUrl = URL.createObjectURL(blob);
+          setRecordedVideoUrl(videoUrl);
+          recordedChunksRef.current = [];
+        };
+
+        mediaRecorderRef.current.start();
+        setIsRecordingVideo(true);
+      });
     }
   };
 
@@ -289,39 +368,11 @@ export default function Hero() {
     };
   }, []);
 
-  const handleVideoRecord = async () => {
-    resetInputs();
-    if (isRecordingVideo) {
-      mediaRecorderRef.current.stop();
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      setIsRecordingVideo(false);
-    } else {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      streamRef.current = stream;
-
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "video/webm",
-      });
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          recordedChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(recordedChunksRef.current, {
-          type: "video/webm",
-        });
-        const videoUrl = URL.createObjectURL(blob);
-        setRecordedVideoUrl(videoUrl);
-        recordedChunksRef.current = [];
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecordingVideo(true);
+  useEffect(() => {
+    if (countdownAudioRef.current) {
+      countdownAudioRef.current.load(); // Load the audio file
     }
-  };
+  }, []);
 
   const handleReset = () => {
     resetInputs();
@@ -419,11 +470,12 @@ export default function Hero() {
             How to use the translator
           </Typography>
           <Typography variant="body1" paragraph>
-            1. Select the <b>Source</b> and <b>Target languages</b>.
+            1. Select the <b>Source</b> and{" "}
+            <b>Target Languages and Modalities</b>.
           </Typography>
           <Typography variant="body1" paragraph>
-            2. Enter <b>Text</b> in the box, upload a <b>File</b>, or record an{" "}
-            <b>Audio</b> or <b>Video</b>.
+            2. Enter <b>Text</b> in the box, upload a <b>File</b>, or record a{" "}
+            <b>Speech</b> or <b>Signs</b>.
           </Typography>
           <Typography variant="body1" paragraph>
             3. Click on <b>Translate</b> to get the translation.
@@ -460,18 +512,25 @@ export default function Hero() {
           >
             <Grid item xs={5}>
               <FormControl fullWidth>
-                <InputLabel id="source-language-label">
-                  Source Language
+                <InputLabel
+                  id="source-language-label"
+                  sx={{
+                    fontSize: "1.2rem",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Source Language and Modality
                 </InputLabel>
+
                 <Select
                   labelId="source-language-label"
                   id="source-language-select"
                   value={sourceLanguage}
                   onChange={handleChangeSource}
                 >
-                  <MenuItem value="en">🇺🇸 English</MenuItem>
-                  <MenuItem value="it">🇮🇹 Italian</MenuItem>
-                  <MenuItem value="es">🇪🇸 Spanish</MenuItem>
+                  <MenuItem value="en">🇺🇸 English (Text or Speech)</MenuItem>
+                  <MenuItem value="it">🇮🇹 Italian (Text or Speech)</MenuItem>
+                  <MenuItem value="es">🇪🇸 Spanish (Text or Speech)</MenuItem>
                   <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
@@ -569,8 +628,14 @@ export default function Hero() {
             </Grid>
             <Grid item xs={5}>
               <FormControl fullWidth>
-                <InputLabel id="target-language-label">
-                  Target Language
+                <InputLabel
+                  id="target-language-label"
+                  sx={{
+                    fontSize: "1.2rem",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Target Language and Modality
                 </InputLabel>
                 <Select
                   labelId="target-language-label"
@@ -579,9 +644,9 @@ export default function Hero() {
                   onChange={handleChangeTarget}
                   margin="dense"
                 >
-                  <MenuItem value="en">🇺🇸 English</MenuItem>
-                  <MenuItem value="it">🇮🇹 Italian</MenuItem>
-                  <MenuItem value="es">🇪🇸 Spanish</MenuItem>
+                  <MenuItem value="en">🇺🇸 English (Text or Speech)</MenuItem>
+                  <MenuItem value="it">🇮🇹 Italian (Text or Speech)</MenuItem>
+                  <MenuItem value="es">🇪🇸 Spanish (Text or Speech)</MenuItem>
                   <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
@@ -686,57 +751,66 @@ export default function Hero() {
               </Button>
             </Grid>
             <Grid item>
-              <Button
-                variant="contained"
-                component="label"
-                startIcon={<AttachFileIcon />}
-                sx={{
-                  backgroundColor: "#D71D7A",
-                  color: "#fff",
-                  "&:hover": { backgroundColor: "#C2185B" },
-                }}
+              <Tooltip
+                title="Supported formats: .mp3, .mp4 etc"
+                placement="top-end"
               >
-                Upload File
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                  accept="video/*,audio/*"
-                />
-              </Button>
+                <Button
+                  variant="contained"
+                  component="label"
+                  startIcon={<AttachFileIcon />}
+                  sx={{
+                    backgroundColor: "#D71D7A",
+                    color: "#fff",
+                    "&:hover": { backgroundColor: "#C2185B" },
+                  }}
+                >
+                  Upload File
+                  <input
+                    type="file"
+                    hidden
+                    onChange={handleFileChange}
+                    accept="video/*,audio/*"
+                  />
+                </Button>
+              </Tooltip>
             </Grid>
             <Grid item>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleAudioRecord}
-                startIcon={<MicIcon />}
-              >
-                {isRecordingAudio ? (
-                  <>
-                    <span className="blinking-dot"></span>Recording Audio
-                  </>
-                ) : (
-                  "Record Audio"
-                )}
-              </Button>
+              {languagesWithoutVideo.includes(sourceLanguage) && (
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleAudioRecord}
+                  startIcon={<MicIcon />}
+                >
+                  {isRecordingAudio ? (
+                    <>
+                      <span className="blinking-dot"></span>Recording Speech
+                    </>
+                  ) : (
+                    "Record Speech"
+                  )}
+                </Button>
+              )}
             </Grid>
-            <Grid item>
-              <Button
-                style={{ backgroundColor: "#9E6700", color: "white" }}
-                variant="contained"
-                onClick={handleVideoRecord}
-                startIcon={<VideocamIcon />}
-              >
-                {isRecordingVideo ? (
-                  <>
-                    <span className="blinking-dot"></span>Recording Video
-                  </>
-                ) : (
-                  "Record Video"
-                )}
-              </Button>
-            </Grid>
+            {!languagesWithoutVideo.includes(sourceLanguage) && (
+              <Grid item>
+                <Button
+                  style={{ backgroundColor: "#9E6700", color: "white" }}
+                  variant="contained"
+                  onClick={handleVideoRecord}
+                  startIcon={<VideocamIcon />}
+                >
+                  {isRecordingVideo ? (
+                    <>
+                      <span className="blinking-dot"></span>Recording Signs
+                    </>
+                  ) : (
+                    "Record Signs"
+                  )}
+                </Button>
+              </Grid>
+            )}
             <Grid item>
               <Button
                 variant="outlined"
@@ -749,6 +823,24 @@ export default function Hero() {
             </Grid>
           </Grid>
         </Box>
+        {countdown > 0 && (
+          <Box
+            sx={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "rgba(0,0,0,0.7)",
+              color: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              zIndex: 1000,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h2">{countdown}</Typography>
+          </Box>
+        )}
       </Container>
     </Box>
   );
