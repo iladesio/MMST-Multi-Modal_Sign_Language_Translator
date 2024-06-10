@@ -60,7 +60,7 @@ export default function Hero() {
     it: voices.find(
       (voice) => voice.lang === "it-IT" && voice.name === "Alice"
     ),
-    es: voices.find((voice) => voice.lang === "es-ES" && voice.name === ""),
+    es: voices.find((voice) => voice.lang === "es-ES"),
   };
 
   const languagesWithoutVideo = ["en", "es", "it"];
@@ -192,14 +192,14 @@ export default function Hero() {
       new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(videoBlob);
-        reader.onload = () => resolve(reader.result);
+        reader.onload = () => resolve(reader.result.split(",")[1]); // Rimuove la parte "data:video/mp4;base64,"
         reader.onerror = (error) => reject(error);
       });
 
     const base64Video = await toBase64(videoBlob);
     return {
       url: "http://localhost:8000/translate/sign_to_text",
-      requestBody: { base64Video, src, trg },
+      requestBody: JSON.stringify({ base64Video, src, trg }),
       headers: { "Content-Type": "application/json" },
     };
   };
