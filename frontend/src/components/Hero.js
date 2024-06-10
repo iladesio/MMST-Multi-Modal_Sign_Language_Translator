@@ -50,7 +50,8 @@ export default function Hero() {
   const countdownAudioRef = useRef(
     new Audio(process.env.PUBLIC_URL + "/beep.wav")
   );
-
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [intervalId, setIntervalId] = useState(null);
   const { speak, voices } = useSpeechSynthesis();
 
   const voiceOptions = {
@@ -325,6 +326,7 @@ export default function Hero() {
     if (isRecordingAudio) {
       mediaRecorderRef.current.stop();
       streamRef.current.getTracks().forEach((track) => track.stop());
+      clearInterval(intervalId);
       setIsRecordingAudio(false);
     } else {
       startCountdown(3, async () => {
@@ -354,6 +356,13 @@ export default function Hero() {
 
         mediaRecorderRef.current.start();
         setIsRecordingAudio(true);
+        setRecordingTime(0); // Resetta il timer
+
+        // Avvia il timer di registrazione
+        const id = setInterval(() => {
+          setRecordingTime((prevTime) => prevTime + 1);
+        }, 1000);
+        setIntervalId(id);
       });
     }
   };
@@ -392,6 +401,13 @@ export default function Hero() {
 
         mediaRecorderRef.current.start();
         setIsRecordingVideo(true);
+        setRecordingTime(0); // Resetta il timer
+
+        // Avvia il timer di registrazione
+        const id = setInterval(() => {
+          setRecordingTime((prevTime) => prevTime + 1);
+        }, 1000);
+        setIntervalId(id);
       });
     }
   };
@@ -450,6 +466,12 @@ export default function Hero() {
       text: translatedText,
       voice: selectedVoice,
     });
+  };
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = String(Math.floor(timeInSeconds / 60)).padStart(2, "0");
+    const seconds = String(timeInSeconds % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
   };
 
   const theme = useTheme();
@@ -851,7 +873,8 @@ export default function Hero() {
                 >
                   {isRecordingAudio ? (
                     <>
-                      <span className="blinking-dot"></span>Recording Speech
+                      <span className="blinking-dot"></span>
+                      Recording Speech ({formatTime(recordingTime)})
                     </>
                   ) : (
                     "Record Speech"
@@ -869,7 +892,8 @@ export default function Hero() {
                 >
                   {isRecordingVideo ? (
                     <>
-                      <span className="blinking-dot"></span>Recording Signs
+                      <span className="blinking-dot"></span>Recording Signs (
+                      {formatTime(recordingTime)})
                     </>
                   ) : (
                     "Record Signs"
