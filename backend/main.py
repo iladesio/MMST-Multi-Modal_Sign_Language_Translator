@@ -167,7 +167,7 @@ async def sign_to_text(req: SignToText):
                     )
 
         utils.deleteFile(video_path)
-        # utils.deleteFolder(output_folder)
+        utils.deleteFolder(output_folder)
 
         content = [
             {
@@ -180,7 +180,9 @@ async def sign_to_text(req: SignToText):
 
         for image in images:
             content.append({"type": "image_url", "image_url": {"url": image}})
-        content = [{"type": "text", "text": "Say hi"}]
+
+        # content = [{"type": "text", "text": "Say hi"}]
+
         client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
 
         response = client.chat.completions.create(
@@ -225,25 +227,25 @@ class SignToSign(BaseModel):
     src: str
     trg: str
 
-    @validator("src")
-    def check_src(cls, value):
-        if value not in constants.LANGUAGE_DICT:
-            raise ValueError(
-                "Invalid value. Source language must be one of: {}".format(
-                    ", ".join(constants.LANGUAGE_DICT)
-                )
-            )
-        return value
+    # @validator("src")
+    # def check_src(cls, value):
+    #   if value not in constants.LANGUAGE_DICT:
+    #      raise ValueError(
+    #         "Invalid value. Source language must be one of: {}".format(
+    #            ", ".join(constants.LANGUAGE_DICT)
+    #       )
+    #  )
+    # return value
 
-    @validator("trg")
-    def check_trg(cls, value):
-        if value not in constants.SIGNED_LANGUAGES_DICT:
-            raise ValueError(
-                "Invalid value. Target sign language must be one of: {}".format(
-                    ", ".join(constants.SIGNED_LANGUAGES_DICT)
-                )
-            )
-        return value
+    # @validator("trg")
+    # def check_trg(cls, value):
+    #   if value not in constants.SIGNED_LANGUAGES_DICT:
+    #      raise ValueError(
+    #         "Invalid value. Target sign language must be one of: {}".format(
+    #            ", ".join(constants.SIGNED_LANGUAGES_DICT)
+    #       )
+    #  )
+    #  return value
 
 
 @app.post("/translate/sign_to_sign", status_code=200)

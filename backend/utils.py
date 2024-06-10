@@ -53,7 +53,9 @@ import cv2
 import numpy as np
 
 
-def extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=100.0):
+def extract_framesNEW(
+    video_path, output_folder, interval=0.2, sharpness_threshold=100.0
+):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -80,14 +82,8 @@ def extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=
     vidcap.release()
 
 
-# Esempio di utilizzo
-video_path = "path/to/your/video.mp4"
-output_folder = "path/to/output/folder"
-extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=100.0)
-
-
 # Funzione per estrarre i frame
-def extract_framesOLD(video_path, output_folder, interval=0.5):
+def extract_frames(video_path, output_folder, interval=0.5):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 

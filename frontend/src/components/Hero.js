@@ -51,8 +51,9 @@ export default function Hero() {
     new Audio(process.env.PUBLIC_URL + "/beep.wav")
   );
   const [recordingTime, setRecordingTime] = useState(0);
-  const [intervalId, setIntervalId] = useState(null);
+  const [intervalId, setIntervalId] = useState(null); // Aggiunto lo stato per intervalId
   const { speak, voices } = useSpeechSynthesis();
+  const startTimeRef = useRef(null);
 
   const voiceOptions = {
     en: voices.find(
@@ -364,10 +365,14 @@ export default function Hero() {
         mediaRecorderRef.current.start();
         setIsRecordingAudio(true);
         setRecordingTime(0); // Resetta il timer
+        startTimeRef.current = performance.now(); // Imposta l'orario di inizio
 
         // Avvia il timer di registrazione
         const id = setInterval(() => {
-          setRecordingTime((prevTime) => prevTime + 1);
+          const elapsed = Math.floor(
+            (performance.now() - startTimeRef.current) / 1000
+          );
+          setRecordingTime(elapsed);
         }, 1000);
         setIntervalId(id);
       });
@@ -379,6 +384,7 @@ export default function Hero() {
     if (isRecordingVideo) {
       mediaRecorderRef.current.stop();
       streamRef.current.getTracks().forEach((track) => track.stop());
+      clearInterval(intervalId);
       setIsRecordingVideo(false);
     } else {
       startCountdown(3, async () => {
@@ -409,10 +415,14 @@ export default function Hero() {
         mediaRecorderRef.current.start();
         setIsRecordingVideo(true);
         setRecordingTime(0); // Resetta il timer
+        startTimeRef.current = performance.now(); // Imposta l'orario di inizio
 
         // Avvia il timer di registrazione
         const id = setInterval(() => {
-          setRecordingTime((prevTime) => prevTime + 1);
+          const elapsed = Math.floor(
+            (performance.now() - startTimeRef.current) / 1000
+          );
+          setRecordingTime(elapsed);
         }, 1000);
         setIntervalId(id);
       });
