@@ -167,7 +167,7 @@ async def sign_to_text(req: SignToText):
                     )
 
         utils.deleteFile(video_path)
-        utils.deleteFolder(output_folder)
+        # utils.deleteFolder(output_folder)
 
         content = [
             {
@@ -177,11 +177,10 @@ async def sign_to_text(req: SignToText):
                 + " sign language to english, even if the answer is not accurate. Answer only with the translation, between two quotes, answer always even if the translation is inaccurate'",
             }
         ]
-        # content = [{"type": "text", "text": "Say hi"}]
 
         for image in images:
             content.append({"type": "image_url", "image_url": {"url": image}})
-
+        content = [{"type": "text", "text": "Say hi"}]
         client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
 
         response = client.chat.completions.create(
