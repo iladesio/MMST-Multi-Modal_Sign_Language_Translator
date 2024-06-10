@@ -16,7 +16,7 @@ import {
   Grid,
   FormControl,
   IconButton,
-  CircularProgress, // Import CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -41,8 +41,8 @@ export default function Hero() {
   const [uploadedVideoSrc, setUploadedVideoSrc] = useState("");
   const [recordedVideoUrl, setRecordedVideoUrl] = useState("");
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false); // State for loading
-  const [countdown, setCountdown] = useState(0); // State for countdown
+  const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const streamRef = useRef(null);
@@ -60,7 +60,9 @@ export default function Hero() {
     it: voices.find(
       (voice) => voice.lang === "it-IT" && voice.name === "Alice"
     ),
-    es: voices.find((voice) => voice.lang === "es-ES"),
+    es:
+      voices.find((voice) => voice.lang === "es-ES") ||
+      voices.find((voice) => voice.lang === "es-ES"),
   };
 
   const languagesWithoutVideo = ["en", "es", "it"];
@@ -90,14 +92,15 @@ export default function Hero() {
       return;
     }
 
-    setIsLoading(true); // Set loading to true when translation starts
+    setIsLoading(true);
 
     let url, requestBody, headers;
     const signLanguages = ["ase", "ise", "bfi", "ssp"];
-    const isSignLanguage = signLanguages.includes(targetLanguage);
+    const isSourceSignLanguage = signLanguages.includes(sourceLanguage);
+    const isTargetSignLanguage = signLanguages.includes(targetLanguage);
 
     if (sourceText) {
-      if (isSignLanguage) {
+      if (isTargetSignLanguage) {
         ({ url, requestBody, headers } = createTextToSignRequest(
           sourceText,
           sourceLanguage,
@@ -114,7 +117,7 @@ export default function Hero() {
       if (!audioSrc) {
         newErrors.audioSrc = "Audio input is required for audio translation";
         setErrors(newErrors);
-        setIsLoading(false); // Set loading to false if there's an error
+        setIsLoading(false);
         return;
       }
       ({ url, requestBody, headers } = await createAudioRequest(
@@ -126,29 +129,43 @@ export default function Hero() {
       if (!recordedVideoUrl && !file) {
         newErrors.videoSrc = "Video input is required for video translation";
         setErrors(newErrors);
-        setIsLoading(false); // Set loading to false if there's an error
+        setIsLoading(false);
         return;
       }
-      ({ url, requestBody, headers } = await createVideoRequest(
-        recordedVideoUrl || file,
-        sourceLanguage,
-        targetLanguage
-      ));
+      if (isSourceSignLanguage && isTargetSignLanguage) {
+        ({ url, requestBody, headers } = await createSignToSignRequest(
+          recordedVideoUrl || file,
+          sourceLanguage,
+          targetLanguage
+        ));
+      } else if (isTargetSignLanguage) {
+        ({ url, requestBody, headers } = await createVideoRequest(
+          recordedVideoUrl || file,
+          sourceLanguage,
+          targetLanguage
+        ));
+      } else {
+        ({ url, requestBody, headers } = await createVideoRequest(
+          recordedVideoUrl || file,
+          sourceLanguage,
+          targetLanguage
+        ));
+      }
     } else {
       newErrors.sourceText = "Unsupported input type";
       setErrors(newErrors);
-      setIsLoading(false); // Set loading to false if there's an error
+      setIsLoading(false);
       return;
     }
 
     try {
       const response = await axios.post(url, requestBody, { headers });
-      handleResponse(response, isSignLanguage);
+      handleResponse(response, isTargetSignLanguage);
     } catch (error) {
       console.error("Error during translation:", error);
       console.error("Response Data:", error.response?.data);
     } finally {
-      setIsLoading(false); // Set loading to false after translation is complete
+      setIsLoading(false);
     }
   };
 
@@ -192,7 +209,7 @@ export default function Hero() {
       new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(videoBlob);
-        reader.onload = () => resolve(reader.result.split(",")[1]); // Rimuove la parte "data:video/mp4;base64,"
+        reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
 
@@ -200,6 +217,26 @@ export default function Hero() {
     return {
       url: "http://localhost:8000/translate/sign_to_text",
       requestBody: JSON.stringify({ base64Video, src, trg }),
+      headers: { "Content-Type": "application/json" },
+    };
+  };
+
+  const createSignToSignRequest = async (videoSrc, src, trg) => {
+    const response = await fetch(videoSrc);
+    const videoBlob = await response.blob();
+
+    const toBase64 = (videoBlob) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(videoBlob);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
+      });
+
+    const base64Video = await toBase64(videoBlob);
+    return {
+      url: "http://localhost:8000/translate/sign_to_sign",
+      requestBody: { base64Video, src, trg },
       headers: { "Content-Type": "application/json" },
     };
   };
@@ -266,9 +303,9 @@ export default function Hero() {
         setTimeout(() => {
           setCountdown("Recording!");
           setTimeout(() => {
-            setCountdown(0); // Clear the message after a short delay
+            setCountdown(0);
             callback();
-          }, 300); // 500 ms delay before starting the recording
+          }, 300);
         }, 1000);
       } else {
         if (countdownAudioRef.current) {
@@ -384,7 +421,7 @@ export default function Hero() {
 
   useEffect(() => {
     if (countdownAudioRef.current) {
-      countdownAudioRef.current.load(); // Load the audio file
+      countdownAudioRef.current.load();
     }
   }, []);
 
@@ -708,10 +745,10 @@ export default function Hero() {
                   borderRadius: theme.shape.borderRadius,
                   backgroundColor: theme.palette.background.paper,
                   minHeight: 200,
-                  position: "relative", // To position the loading spinner
+                  position: "relative",
                 }}
               >
-                {isLoading ? ( // Show loading spinner when loading
+                {isLoading ? (
                   <CircularProgress
                     size={24}
                     sx={{
