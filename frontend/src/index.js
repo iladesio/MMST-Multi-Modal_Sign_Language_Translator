@@ -1,13 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import LandingPage from './LandingPage';  // Assicurati che il percorso sia corretto
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import LandingPage from "./LandingPage"; // Assicurati che il percorso sia corretto
+import reportWebVitals from "./reportWebVitals";
+import "./components/i18n";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <LandingPage/>s
+    <LandingPage />s
   </React.StrictMode>
 );
 

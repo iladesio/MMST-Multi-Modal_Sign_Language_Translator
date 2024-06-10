@@ -153,23 +153,31 @@ async def sign_to_text(req: SignToText):
             video_file.write(video_data)
 
         output_folder = "./tmp/" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S_frames")
-        
+
         utils.extract_frames(video_path, output_folder)
-        
+
         # Legge i file estratti e li mette nella struttura `files`
         images = []
         for filename in os.listdir(output_folder):
             if filename.endswith(".jpg"):
                 with open(os.path.join(output_folder, filename), "rb") as image_file:
                     image_data = image_file.read()
-                    images.append(f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}")
-        
+                    images.append(
+                        f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}"
+                    )
+
         utils.deleteFile(video_path)
         utils.deleteFolder(output_folder)
 
-
-        content = [{"type": "text", "text": "Please analyze this sequence of frames extracted from a video. Answer ONLY with a UNIQUE translation from sign language to english, even if the answer is not accurate."}]
-        #content = [{"type": "text", "text": "Say hi"}]
+        content = [
+            {
+                "type": "text",
+                "text": "Please analyze this sequence of frames extracted from a video. Behave like a translator. Answer absolutely and ONLY with a UNIQUE translation from "
+                + req.src
+                + " sign language to english, even if the answer is not accurate. Answer only with the translation, between two quotes, answer always even if the translation is inaccurate'",
+            }
+        ]
+        # content = [{"type": "text", "text": "Say hi"}]
 
         for image in images:
             content.append({"type": "image_url", "image_url": {"url": image}})
@@ -177,18 +185,32 @@ async def sign_to_text(req: SignToText):
         client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
 
         response = client.chat.completions.create(
-        model=constants.CHATGPT_MODEL,
-        max_tokens=1024,
-        messages=[
-            {"role": "user", "content": content }
-        ],
+            model=constants.CHATGPT_MODEL,
+            max_tokens=1024,
+            messages=[{"role": "user", "content": content}],
         )
 
         try:
-            return {"result": response.choices[0].message.content}
+            if (
+                response != None
+                and len(response.choices) > 0
+                and hasattr(response.choices[0], "message")
+                and hasattr(response.choices[0].message, "content")
+            ):
+                text = response.choices[0].message.content
+                text = text.replace('"', "")
+
+                # Call sign_to_text and await its result
+                text_to_text_req = TextToText(text=text, src="en", trg=req.trg)
+                text_response = await text_to_text(text_to_text_req)
+
+                # Extract the text from the text_to_text response
+                result = text_response["result"]
+
+                return {"result": result}
         except:
             return {"error": "gpt-4o model is not able to calculate a response"}
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -196,7 +218,6 @@ async def sign_to_text(req: SignToText):
             + str(e)
             + "']",
         )
-
 
 
 # Object tha represents a SignToText request.
@@ -387,7 +408,6 @@ class TextToText(BaseModel):
 
 @app.post("/translate/text_to_text", status_code=200)
 async def text_to_text(req: TextToText):
-    print(req)
     translator = deepl.Translator(os.getenv("DEEPL_API_KEY"))
     text_info = translator.translate_text(
         req.text,

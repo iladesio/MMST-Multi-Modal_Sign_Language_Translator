@@ -203,6 +203,8 @@ export default function Hero() {
   };
 
   const createVideoRequest = async (videoSrc, src, trg) => {
+    videoSrc = URL.createObjectURL(file);
+
     const response = await fetch(videoSrc);
     const videoBlob = await response.blob();
 
@@ -215,6 +217,7 @@ export default function Hero() {
       });
 
     const base64Video = await toBase64(videoBlob);
+    console.log(base64Video);
     return {
       url: "http://localhost:8000/translate/sign_to_text",
       requestBody: JSON.stringify({ base64Video, src, trg }),
@@ -235,6 +238,7 @@ export default function Hero() {
       });
 
     const base64Video = await toBase64(videoBlob);
+    console.log(base64Video);
     return {
       url: "http://localhost:8000/translate/sign_to_sign",
       requestBody: { base64Video, src, trg },
@@ -282,8 +286,11 @@ export default function Hero() {
       }
       resetInputs();
       const fileUrl = URL.createObjectURL(file);
+      console.log(fileUrl);
+
       if (fileType === "video") {
         setUploadedVideoSrc(fileUrl);
+        console.log("sono entrato");
       } else if (fileType === "audio") {
         setAudioSrc(fileUrl);
       }

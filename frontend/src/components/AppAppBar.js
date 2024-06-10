@@ -11,6 +11,7 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import ToggleColorMode from "./ToggleColorMode"; // Assumi che sia un componente esistente per cambiare il tema
+import LanguageSelector from "./LanguageSelector"; // Importa il selettore di lingua
 
 const logoStyle = {
   width: "140px",
@@ -101,6 +102,7 @@ function AppAppBar({ mode, toggleColorMode }) {
               </Box>
             </Box>
             <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
+            <LanguageSelector /> {/* Aggiungi il selettore di lingua qui */}
             <Box sx={{ display: { sm: "", md: "none" } }}>
               <Button
                 variant="text"
