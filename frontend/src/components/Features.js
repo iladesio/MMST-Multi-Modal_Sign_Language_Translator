@@ -12,22 +12,21 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import DevicesRoundedIcon from "@mui/icons-material/DevicesRounded";
 import EdgesensorHighRoundedIcon from "@mui/icons-material/EdgesensorHighRounded";
 import ViewQuiltRoundedIcon from "@mui/icons-material/ViewQuiltRounded";
+import { Trans, useTranslation } from "react-i18next"; // Assicurati di importare Trans e useTranslation
 
 const items = [
   {
     icon: <ViewQuiltRoundedIcon />,
-    title: "Machine Learning Integration",
-    description:
-      "Integrate advanced machine learning algorithms to accurately interpret and translate sign language into text and speech.",
+    title: "ml_integration_title",
+    description: "ml_integration_description",
     imageLight:
       'url("/static/images/templates/templates-images/dash-light.png")',
     imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")',
   },
   {
     icon: <EdgesensorHighRoundedIcon />,
-    title: "Mobile Facility Communication",
-    description:
-      "Enable real-time sign language translation on mobile devices, facilitating seamless communication on the go.",
+    title: "mobile_facility_title",
+    description: "mobile_facility_description",
     imageLight:
       'url("/static/images/templates/templates-images/mobile-light.png")',
     imageDark:
@@ -35,9 +34,8 @@ const items = [
   },
   {
     icon: <DevicesRoundedIcon />,
-    title: "Available on All Platforms",
-    description:
-      "Access sign language translation services across web, mobile, and desktop platforms for maximum flexibility and convenience.",
+    title: "all_platforms_title",
+    description: "all_platforms_description",
     imageLight:
       'url("/static/images/templates/templates-images/devices-light.png")',
     imageDark:
@@ -46,6 +44,7 @@ const items = [
 ];
 
 export default function Features() {
+  const { t } = useTranslation(); // hook per usare le traduzioni
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
 
   const handleItemClick = (index) => {
@@ -59,20 +58,46 @@ export default function Features() {
       <Grid container spacing={6}>
         <Grid item xs={12} md={6}>
           <div>
-            <Typography component="h2" variant="h4" color="text.primary">
-              Our features
+            <Typography
+              component="h2"
+              variant="h4"
+              color="text.primary"
+              gutterBottom
+              sx={{
+                fontWeight: "bold",
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: 2,
+                mt: 4,
+                mb: 4,
+                position: "relative",
+                "&::after": {
+                  content: '""',
+                  display: "block",
+                  width: "50px",
+                  height: "4px",
+                  backgroundColor: "primary.main",
+                  margin: "8px auto 0",
+                },
+              }}
+            >
+              <Trans i18nKey="features_title">Our features</Trans>
             </Typography>
+
             <Typography
               variant="body1"
               color="text.secondary"
               sx={{ mb: { xs: 2, sm: 4 } }}
             >
-              Our project aims to revolutionize communication for the deaf and
-              hard of hearing community through a{" "}
-              <span style={{ fontWeight: "bold" }}>
-                Multimodal Sign Language Translator{" "}
-              </span>{" "}
-              .
+              <Trans i18nKey="features_description">
+                Our project aims to revolutionize communication for the deaf and
+                hard of hearing community through a
+                {<strong>Multimodal Sign Language Translator</strong>}
+                <span style={{ fontWeight: "bold" }}>
+                  Multimodal Sign Language Translator{" "}
+                </span>
+                .
+              </Trans>
             </Typography>
           </div>
           <Grid
@@ -84,7 +109,7 @@ export default function Features() {
             {items.map(({ title }, index) => (
               <Chip
                 key={index}
-                label={title}
+                label={t(title)}
                 onClick={() => handleItemClick(index)}
                 sx={{
                   borderColor: (theme) => {
@@ -133,14 +158,14 @@ export default function Features() {
                 variant="body2"
                 fontWeight="bold"
               >
-                {selectedFeature.title}
+                {t(selectedFeature.title)}
               </Typography>
               <Typography
                 color="text.secondary"
                 variant="body2"
                 sx={{ my: 0.5 }}
               >
-                {selectedFeature.description}
+                {t(selectedFeature.description)}
               </Typography>
               <Link
                 color="primary"
@@ -153,7 +178,7 @@ export default function Features() {
                   "&:hover > svg": { transform: "translateX(2px)" },
                 }}
               >
-                <span>Learn more</span>
+                <Trans i18nKey="learn_more">Learn more</Trans>
                 <ChevronRightRoundedIcon
                   fontSize="small"
                   sx={{ mt: "1px", ml: "2px" }}
@@ -226,14 +251,14 @@ export default function Features() {
                       variant="body2"
                       fontWeight="bold"
                     >
-                      {title}
+                      {t(title)}
                     </Typography>
                     <Typography
                       color="text.secondary"
                       variant="body2"
                       sx={{ my: 0.5 }}
                     >
-                      {description}
+                      {t(description)}
                     </Typography>
                     <Link
                       color="primary"
@@ -249,7 +274,7 @@ export default function Features() {
                         event.stopPropagation();
                       }}
                     >
-                      <span>Learn more</span>
+                      <Trans i18nKey="learn_more">Learn more</Trans>
                       <ChevronRightRoundedIcon
                         fontSize="small"
                         sx={{ mt: "1px", ml: "2px" }}

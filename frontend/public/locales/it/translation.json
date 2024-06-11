@@ -1,0 +1,48 @@
+{
+  "title": "MMSigns",
+  "description": "Il tuo traduttore di lingua dei segni in tasca.",
+  "how_to_use": "Come usare il traduttore",
+  "step1": "1. Seleziona le <1>Lingue e Modalità di Origine</1> e <1>Destinazione</1>.",
+  "step2": "2. Inserisci il <1>Testo</1> nella casella, carica un <1>File</1> o registra un <1>Discorso</1> o <1>Segni</1>.",
+  "step3": "3. Clicca su <1>Traduci</1> per ottenere la traduzione.",
+  "step4": "4. Clicca su <1>Ripristina</1> per cancellare la traduzione corrente e iniziare una nuova.",
+  "translate": "Traduci",
+  "upload_file": "Carica File",
+  "record_speech": "Registra Discorso",
+  "record_signs": "Registra Segni",
+  "reset": "Ripristina",
+  "src-in": "Lingua d'origine e Modalità",
+  "enter-src": "Inserisci un testo o allega un file multimediale",
+
+  "trg-in": "Lingua di Destinazione e Modalità",
+  "enter-trg": "Testo o file multimediale tradotti",
+
+  "enText": "Inglese (Testo o Audio)",
+  "esText": "Spagnolo (Testuale o Audio)",
+  "itText": "Italiano (Testo o Audio",
+  "asl": "ASL (Lingua dei Segni Americana)", 
+  "lis": "LIS (Lingua dei Segni Italiana)",
+  "bsl": "BSL (Lingua dei Segni Britannica)",
+  "lse": "LSE (Lingua dei Segni Spagnola)",
+
+  "features_title": "Le nostre funzionalità",
+  "features_description": "Il nostro progetto mira a rivoluzionare la comunicazione per la comunità sorda e ipoudente attraverso un <1>Traduttore Multimodale di Lingua dei Segni</1>.",
+  "ml_integration_title": "Integrazione con Machine Learning",
+  "ml_integration_description": "Integra algoritmi avanzati di machine learning per interpretare e tradurre accuratamente la lingua dei segni in testo e voce.",
+  "mobile_facility_title": "Comunicazione Mobile",
+  "mobile_facility_description": "Abilita la traduzione in tempo reale della lingua dei segni su dispositivi mobili, facilitando una comunicazione senza soluzione di continuità in movimento.",
+  "all_platforms_title": "Disponibile su Tutte le Piattaforme",
+  "all_platforms_description": "Accedi ai servizi di traduzione della lingua dei segni su piattaforme web, mobile e desktop per la massima flessibilità e convenienza.",
+  "learn_more": "Scopri di più",
+
+  "meet_our_team": "Incontra il nostro team",
+  "testimonial_daniele": "Collaborare a questo progetto è stata un'incredibile esperienza di apprendimento.",
+  "testimonial_ilaria": "Progettare con l'utente in mente è ciò che amo, e questo progetto ha messo alla prova quella passione.",
+  "testimonial_giuseppe": "Gestire questo progetto è stato un viaggio nel superare i confini dell'efficienza e del lavoro di squadra.",
+  "testimonial_federico": "Garantire la massima qualità nei nostri deliverables è la mia priorità assoluta, e questo progetto non ha fatto eccezione.",
+  "testimonial_matteo": "Commercializzare un prodotto così innovativo è stato sia una sfida che una soddisfazione.",
+  "occupation_msc_student": "Studente Magistrale in Informatica",
+
+  "features": "Funzionalità",
+  "team": "Team"
+}

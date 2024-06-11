@@ -1,0 +1,49 @@
+{
+  "title": "MMSigns",
+  "description": "Your Sign Language Translator in Pocket.",
+  "how_to_use": "How to use the translator",
+  "step1": "1. Select the <1>Source</1> and <1>Target Languages and Modalities</1>.",
+  "step2": "2. Enter <1>Text</1> in the box, upload a <1>File</1>, or record a <1>Speech</1> or <1>Signs</1>.",
+  "step3": "3. Click on <1>Translate</1> to get the translation.",
+  "step4": "4. Click on <1>Reset</1> to clear the current translation and start a new.",
+  "translate": "Translate",
+  "upload_file": "Upload File",
+  "record_speech": "Record Speech",
+  "record_signs": "Record Signs",
+  "reset": "Reset",
+  "src-in": "Source Language and Modality",
+  "enter-src": "Enter text or attach media",
+
+  "trg-in": "Target Language and Modality",
+  "enter-trg": "Translated text or media",
+
+  "enText": "English (Text or Audio)",
+  "esText": "Spanish (Text or Audio)",
+  "itText": "Italian (Text or Audio)",
+  "asl": "ASL (American Sign Language)", 
+  "lis": "LIS (Italian Sign Language)",
+  "bsl": "BSL (British Sign Language)",
+  "lse": "LSE (Spanish Sign Language)",
+
+  "features_title": "Our features",
+  "features_description": "Our project aims to revolutionize communication for the deaf and hard of hearing community through a <1>Multimodal Sign Language Translator</1>.",
+  "ml_integration_title": "Machine Learning Integration",
+  "ml_integration_description": "Integrate advanced machine learning algorithms to accurately interpret and translate sign language into text and speech.",
+  "mobile_facility_title": "Mobile Facility Communication",
+  "mobile_facility_description": "Enable real-time sign language translation on mobile devices, facilitating seamless communication on the go.",
+  "all_platforms_title": "Available on All Platforms",
+  "all_platforms_description": "Access sign language translation services across web, mobile, and desktop platforms for maximum flexibility and convenience.",
+  "learn_more": "Learn more",
+
+  "meet_our_team": "Meet Our Team",
+  "testimonial_daniele": "Collaborating on this project has been an incredible learning experience.",
+  "testimonial_ilaria": "Designing with the user in mind is what I love, and this project put that passion to the test.",
+  "testimonial_giuseppe": "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
+  "testimonial_federico": "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
+  "testimonial_matteo": "Marketing such an innovative product was both challenging and rewarding.",
+  "occupation_msc_student": "M.Sc. Computer Science Student",
+
+  "features": "Features",
+  "team": "Team"
+
+}

@@ -27,8 +27,10 @@ import WaveSurfer from "wavesurfer.js";
 import Tooltip from "@mui/material/Tooltip";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import { useSpeechSynthesis } from "react-speech-kit";
+import { useTranslation, Trans } from "react-i18next";
 
 export default function Hero() {
+  const { t } = useTranslation(); // hook per usare le traduzioni
   const [sourceLanguage, setSourceLanguage] = useState("en");
   const [targetLanguage, setTargetLanguage] = useState("it");
   const [sourceText, setSourceText] = useState("");
@@ -51,7 +53,7 @@ export default function Hero() {
     new Audio(process.env.PUBLIC_URL + "/beep.wav")
   );
   const [recordingTime, setRecordingTime] = useState(0);
-  const [intervalId, setIntervalId] = useState(null); // Aggiunto lo stato per intervalId
+  const [intervalId, setIntervalId] = useState(null);
   const { speak, voices } = useSpeechSynthesis();
   const startTimeRef = useRef(null);
 
@@ -94,13 +96,33 @@ export default function Hero() {
       return;
     }
 
-    setIsLoading(true);
-
     let url, requestBody, headers;
     const signLanguages = ["ase", "ise", "bfi", "ssp"];
     const isSourceSignLanguage = signLanguages.includes(sourceLanguage);
     const isTargetSignLanguage = signLanguages.includes(targetLanguage);
 
+    if (isSourceSignLanguage && sourceText !== "") {
+      newErrors.sourceText =
+        "Cannot translate from sign language if textual input is given";
+      setErrors(newErrors);
+      return;
+    }
+
+    if (isSourceSignLanguage && audioSrc !== "") {
+      newErrors.sourceText =
+        "Cannot translate from sign language if audio input is given";
+      setErrors(newErrors);
+      return;
+    }
+
+    if (isSourceSignLanguage === false && (recordedVideoUrl || file)) {
+      newErrors.sourceText =
+        "Cannot translate from spoken language if video input is given";
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
     if (sourceText) {
       if (isTargetSignLanguage) {
         ({ url, requestBody, headers } = createTextToSignRequest(
@@ -204,7 +226,7 @@ export default function Hero() {
   };
 
   const createVideoRequest = async (videoSrc, src, trg) => {
-    videoSrc = URL.createObjectURL(file);
+    if (file) videoSrc = URL.createObjectURL(file);
 
     const response = await fetch(videoSrc);
     const videoBlob = await response.blob();
@@ -248,22 +270,44 @@ export default function Hero() {
   };
 
   const handleResponse = (response, isSignLanguage) => {
+    const newErrors = {};
     if (response.status === 200) {
       if (isSignLanguage) {
-        const { pose, translatedVideo } = response.data;
-        if (pose) {
-          const videoUrl = createBlobUrl(pose, "video/mp4");
-          setVideoSrc(videoUrl);
-        }
-        if (translatedVideo) {
-          const videoUrl = createBlobUrl(translatedVideo, "video/mp4");
-          setVideoSrc(videoUrl);
+        if (response.data.error !== undefined) {
+          newErrors.sourceText = "Error: " + response.data.error;
+          setErrors(newErrors);
+        } else {
+          const { pose, translatedVideo } = response.data;
+          if (pose) {
+            const videoUrl = createBlobUrl(pose, "video/mp4");
+            setVideoSrc(videoUrl);
+          }
+          if (translatedVideo) {
+            const videoUrl = createBlobUrl(translatedVideo, "video/mp4");
+            setVideoSrc(videoUrl);
+          }
         }
       } else {
-        setTranslatedText(response.data.result);
+        if (response.data.result !== undefined)
+          setTranslatedText(response.data.result);
+        else if (response.data.error !== undefined) {
+          newErrors.sourceText = "Error: " + response.data.error;
+          setErrors(newErrors);
+        } else {
+          newErrors.sourceText =
+            "Internal Server Error - Something went wrong during the translation";
+          setErrors(newErrors);
+        }
       }
     } else {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      if (response.data.error !== undefined) {
+        newErrors.sourceText = "Error: " + response.data.error;
+        setErrors(newErrors);
+      } else {
+        newErrors.sourceText =
+          "Internal Server Error - Something went wrong during the translation";
+        setErrors(newErrors);
+      }
     }
   };
 
@@ -526,7 +570,7 @@ export default function Hero() {
               fontSize: "clamp(3.5rem, 10vw, 4rem)",
             }}
           >
-            MMSigns&nbsp;
+            {t("title")}&nbsp;
             <Typography
               component="span"
               variant="h1"
@@ -546,7 +590,7 @@ export default function Hero() {
             color="text.secondary"
             sx={{ alignSelf: "center", width: { sm: "100%", md: "80%" } }}
           >
-            Your Sign Language Translator in Pocket.
+            {t("description")}
           </Typography>
         </Stack>
         <Box
@@ -565,22 +609,30 @@ export default function Hero() {
           }}
         >
           <Typography variant="h6" gutterBottom sx={{ color: "#D71D7A" }}>
-            How to use the translator
+            {t("how_to_use")}
           </Typography>
           <Typography variant="body1" paragraph>
-            1. Select the <b>Source</b> and{" "}
-            <b>Target Languages and Modalities</b>.
+            <Trans i18nKey="step1">
+              1. Select the <b>Source</b> and{" "}
+              <b>Target Languages and Modalities</b>.
+            </Trans>
           </Typography>
           <Typography variant="body1" paragraph>
-            2. Enter <b>Text</b> in the box, upload a <b>File</b>, or record a{" "}
-            <b>Speech</b> or <b>Signs</b>.
+            <Trans i18nKey="step2">
+              2. Enter <b>Text</b> in the box, upload a <b>File</b>, or record a{" "}
+              <b>Speech</b> or <b>Signs</b>.
+            </Trans>
           </Typography>
           <Typography variant="body1" paragraph>
-            3. Click on <b>Translate</b> to get the translation.
+            <Trans i18nKey="step3">
+              3. Click on <b>Translate</b> to get the translation.
+            </Trans>
           </Typography>
           <Typography variant="body1" paragraph>
-            4. Click on <b>Reset</b> to clear the current translation and start
-            a new.
+            <Trans i18nKey="step4">
+              4. Click on <b>Reset</b> to clear the current translation and
+              start a new.
+            </Trans>
           </Typography>
         </Box>
         <Box
@@ -617,7 +669,7 @@ export default function Hero() {
                     marginBottom: "10px",
                   }}
                 >
-                  Source Language and Modality
+                  <Trans i18nKey="src-in"> </Trans>
                 </InputLabel>
 
                 <Select
@@ -626,36 +678,42 @@ export default function Hero() {
                   value={sourceLanguage}
                   onChange={handleChangeSource}
                 >
-                  <MenuItem value="en">🇺🇸 English (Text or Speech)</MenuItem>
-                  <MenuItem value="it">🇮🇹 Italian (Text or Speech)</MenuItem>
-                  <MenuItem value="es">🇪🇸 Spanish (Text or Speech)</MenuItem>
+                  <MenuItem value="en">
+                    🇺🇸 {<Trans i18nKey="enText"></Trans>}
+                  </MenuItem>
+                  <MenuItem value="it">
+                    🇮🇹 {<Trans i18nKey="itText"></Trans>}
+                  </MenuItem>
+                  <MenuItem value="es">
+                    🇪🇸 {<Trans i18nKey="esText"></Trans>}
+                  </MenuItem>
                   <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇺🇸 ASL (American Sign Language)
+                    🇺🇸 {<Trans i18nKey="asl"></Trans>}
                   </MenuItem>
                   <MenuItem value="ise">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇮🇹 LIS (Italian Sign Language)
+                    🇮🇹 {<Trans i18nKey="lis"></Trans>}
                   </MenuItem>
                   <MenuItem value="bfi">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇬🇧 BSL (British Sign Language)
+                    🇬🇧 {<Trans i18nKey="bsl"></Trans>}
                   </MenuItem>
                   <MenuItem value="ssp">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇪🇸 LSE (Spanish Sign Language)
+                    🇪🇸 {<Trans i18nKey="lse"></Trans>}
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -675,7 +733,7 @@ export default function Hero() {
                   !uploadedVideoSrc &&
                   !audioSrc && (
                     <TextField
-                      label="Enter text or attach media"
+                      label={<Trans i18nKey="enter-src"></Trans>}
                       fullWidth
                       margin="normal"
                       value={sourceText}
@@ -694,7 +752,7 @@ export default function Hero() {
                   <Box mt={2}>
                     <video width="100%" controls>
                       <source src={uploadedVideoSrc} type="video/mp4" />
-                      Your browser does not support the video tag.
+                      {t("your_browser_does_not_support_the_video_tag")}
                     </video>
                   </Box>
                 )}
@@ -702,7 +760,7 @@ export default function Hero() {
                   <Box mt={2}>
                     <video width="100%" controls>
                       <source src={recordedVideoUrl} type="video/webm" />
-                      Your browser does not support the video tag.
+                      {t("your_browser_does_not_support_the_video_tag")}
                     </video>
                   </Box>
                 )}
@@ -710,7 +768,7 @@ export default function Hero() {
                   <Box mt={2} sx={{ width: "100%", height: "100px" }}>
                     <div id="waveform"></div>
                     <Button onClick={() => waveSurferRef.current.playPause()}>
-                      Play / Pause
+                      {t("play_pause")}
                     </Button>
                   </Box>
                 )}
@@ -719,7 +777,7 @@ export default function Hero() {
             <Grid item>
               <IconButton
                 onClick={handleSwapLanguages}
-                aria-label="Swap languages"
+                aria-label={t("swap_languages")}
               >
                 <SwapHorizIcon />
               </IconButton>
@@ -733,7 +791,7 @@ export default function Hero() {
                     marginBottom: "10px",
                   }}
                 >
-                  Target Language and Modality
+                  {<Trans i18nKey="trg-in"></Trans>}
                 </InputLabel>
                 <Select
                   labelId="target-language-label"
@@ -742,36 +800,42 @@ export default function Hero() {
                   onChange={handleChangeTarget}
                   margin="dense"
                 >
-                  <MenuItem value="en">🇺🇸 English (Text or Speech)</MenuItem>
-                  <MenuItem value="it">🇮🇹 Italian (Text or Speech)</MenuItem>
-                  <MenuItem value="es">🇪🇸 Spanish (Text or Speech)</MenuItem>
+                  <MenuItem value="en">
+                    🇺🇸 {<Trans i18nKey="enText"></Trans>}
+                  </MenuItem>
+                  <MenuItem value="it">
+                    🇮🇹 {<Trans i18nKey="itText"></Trans>}
+                  </MenuItem>
+                  <MenuItem value="es">
+                    🇪🇸 {<Trans i18nKey="esText"></Trans>}
+                  </MenuItem>
                   <MenuItem value="ase">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇺🇸 ASL (American Sign Language)
+                    🇺🇸 {<Trans i18nKey="asl"></Trans>}
                   </MenuItem>
                   <MenuItem value="ise">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇮🇹 LIS (Italian Sign Language)
+                    🇮🇹 {<Trans i18nKey="lis"></Trans>}
                   </MenuItem>
                   <MenuItem value="bfi">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇬🇧 BSL (British Sign Language)
+                    🇬🇧 {<Trans i18nKey="bsl"></Trans>}
                   </MenuItem>
                   <MenuItem value="ssp">
                     <PanToolIcon
                       fontSize="small"
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    🇪🇸 LSE (Spanish Sign Language)
+                    🇪🇸 {<Trans i18nKey="lse"></Trans>}
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -802,7 +866,7 @@ export default function Hero() {
                     {!videoSrc && (
                       <Box display="flex" alignItems="center">
                         <TextField
-                          label="Translated text or media"
+                          label={<Trans i18nKey="enter-trg"></Trans>}
                           fullWidth
                           margin="normal"
                           value={translatedText}
@@ -813,7 +877,7 @@ export default function Hero() {
                           error={!!errors.sourceText}
                           helperText={errors.sourceText}
                         />
-                        <Tooltip title="Play Translation" arrow>
+                        <Tooltip title={t("play_translation")} arrow>
                           <IconButton color="primary" onClick={handleSpeak}>
                             <VolumeUpIcon />
                           </IconButton>
@@ -824,7 +888,7 @@ export default function Hero() {
                       <Box mt={2}>
                         <video width="100%" controls>
                           <source src={videoSrc} type="video/mp4" />
-                          Your browser does not support the video tag.
+                          {t("your_browser_does_not_support_the_video_tag")}
                         </video>
                       </Box>
                     )}
@@ -852,14 +916,11 @@ export default function Hero() {
                   "&:hover": { backgroundColor: "#0358A7" },
                 }}
               >
-                Translate
+                {t("translate")}
               </Button>
             </Grid>
             <Grid item>
-              <Tooltip
-                title="Supported formats: .mp3, .mp4 etc"
-                placement="top-end"
-              >
+              <Tooltip title={t("supported_formats")} placement="top-end">
                 <Button
                   variant="contained"
                   component="label"
@@ -870,7 +931,7 @@ export default function Hero() {
                     "&:hover": { backgroundColor: "#C2185B" },
                   }}
                 >
-                  Upload File
+                  {t("upload_file")}
                   <input
                     type="file"
                     hidden
@@ -891,10 +952,10 @@ export default function Hero() {
                   {isRecordingAudio ? (
                     <>
                       <span className="blinking-dot"></span>
-                      Recording Speech ({formatTime(recordingTime)})
+                      {t("recording_speech")} ({formatTime(recordingTime)})
                     </>
                   ) : (
-                    "Record Speech"
+                    t("record_speech")
                   )}
                 </Button>
               )}
@@ -909,11 +970,11 @@ export default function Hero() {
                 >
                   {isRecordingVideo ? (
                     <>
-                      <span className="blinking-dot"></span>Recording Signs (
-                      {formatTime(recordingTime)})
+                      <span className="blinking-dot"></span>
+                      {t("recording_signs")} ({formatTime(recordingTime)})
                     </>
                   ) : (
-                    "Record Signs"
+                    t("record_signs")
                   )}
                 </Button>
               </Grid>
@@ -925,7 +986,7 @@ export default function Hero() {
                 onClick={handleReset}
                 startIcon={<RestoreIcon />}
               >
-                Reset
+                {t("reset")}
               </Button>
             </Grid>
           </Grid>

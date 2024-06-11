@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
@@ -12,6 +12,7 @@ import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import ToggleColorMode from "./ToggleColorMode"; // Assumi che sia un componente esistente per cambiare il tema
 import LanguageSelector from "./LanguageSelector"; // Importa il selettore di lingua
+import { Trans, useTranslation } from "react-i18next";
 
 const logoStyle = {
   width: "140px",
@@ -39,6 +40,13 @@ function AppAppBar({ mode, toggleColorMode }) {
       setOpen(false);
     }
   };
+
+  const { i18n } = useTranslation();
+
+  // Effetto per ricaricare il componente quando cambia la lingua
+  useEffect(() => {
+    // Forza il ricaricamento del componente
+  }, [i18n.language]);
 
   return (
     <div>
@@ -91,12 +99,12 @@ function AppAppBar({ mode, toggleColorMode }) {
               <Box sx={{ display: { xs: "none", md: "flex" } }}>
                 <MenuItem onClick={() => scrollToSection("features")}>
                   <Typography variant="body2" color="text.primary">
-                    Features
+                    <Trans i18nKey="features"></Trans>
                   </Typography>
                 </MenuItem>
                 <MenuItem onClick={() => scrollToSection("testimonials")}>
                   <Typography variant="body2" color="text.primary">
-                    Team
+                    <Trans i18nKey="team"></Trans>
                   </Typography>
                 </MenuItem>
               </Box>
@@ -123,10 +131,10 @@ function AppAppBar({ mode, toggleColorMode }) {
                   }}
                 >
                   <MenuItem onClick={() => scrollToSection("features")}>
-                    Features
+                    <Trans i18nKey="features"></Trans>
                   </MenuItem>
                   <MenuItem onClick={() => scrollToSection("testimonials")}>
-                    Testimonials
+                    <Trans i18nKey="team"></Trans>
                   </MenuItem>
                   <Divider />
                 </Box>

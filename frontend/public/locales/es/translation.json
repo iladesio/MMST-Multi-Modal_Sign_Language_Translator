@@ -1,0 +1,49 @@
+{
+  "title": "MMSigns",
+  "description": "Tu traductor de lenguaje de señas en el bolsillo.",
+  "how_to_use": "Cómo usar el traductor",
+  "step1": "1. Seleccione el <1>Idioma y Modalidades de Origen</1> y <1>Destino</1>.",
+  "step2": "2. Ingrese <1>Texto</1> en el cuadro, cargue un <1>Archivo</1> o grabe un <1>Discurso</1> o <1>Señas</1>.",
+  "step3": "3. Haga clic en <1>Traducir</1> para obtener la traducción.",
+  "step4": "4. Haga clic en <1>Restablecer</1> para borrar la traducción actual y comenzar una nueva.",
+  "translate": "Traducir",
+  "upload_file": "Subir Archivo",
+  "record_speech": "Grabar Discurso",
+  "record_signs": "Grabar Señas",
+  "reset": "Restablecer",
+  "src-in": "Idioma de Origen y Modalidad",
+  "enter-src": "Ingrese texto o adjunte medios",
+
+  "trg-in": "Idioma y Modalidad de Destino",
+  "enter-trg": "Texto o medios traducidos",
+
+  "enText": "Inglés (Texto o Audio)",
+  "esText": "Español (Texto o Audio)",
+  "itText": "Italiano (Texto o Audio)",
+  "asl": "ASL (Lengua de Señas Americana)", 
+  "lis": "LIS (Lengua de Señas Italiana)",
+  "bsl": "BSL (Lengua de Señas Británica)",
+  "lse": "LSE (Lengua de Señas Española)",
+
+  "features_title": "Nuestras características",
+  "features_description": "Nuestro proyecto tiene como objetivo revolucionar la comunicación para la comunidad sorda y con dificultades auditivas a través de un <1>Traductor Multimodal de Lenguaje de Señas</1>.",
+  "ml_integration_title": "Integración con Aprendizaje Automático",
+  "ml_integration_description": "Integra algoritmos avanzados de aprendizaje automático para interpretar y traducir con precisión el lenguaje de señas en texto y voz.",
+  "mobile_facility_title": "Comunicación Móvil",
+  "mobile_facility_description": "Habilite la traducción en tiempo real del lenguaje de señas en dispositivos móviles, facilitando una comunicación fluida en movimiento.",
+  "all_platforms_title": "Disponible en Todas las Plataformas",
+  "all_platforms_description": "Acceda a servicios de traducción de lenguaje de señas en plataformas web, móviles y de escritorio para la máxima flexibilidad y conveniencia.",
+  "learn_more": "Aprende más",
+
+  "meet_our_team": "Conoce a nuestro equipo",
+  "testimonial_daniele": "Colaborar en este proyecto ha sido una experiencia de aprendizaje increíble.",
+  "testimonial_ilaria": "Diseñar con el usuario en mente es lo que amo, y este proyecto puso a prueba esa pasión.",
+  "testimonial_giuseppe": "Gestionar este proyecto ha sido un viaje para superar los límites de la eficiencia y el trabajo en equipo.",
+  "testimonial_federico": "Garantizar la máxima calidad en nuestras entregas es mi principal prioridad, y este proyecto no fue una excepción.",
+  "testimonial_matteo": "Comercializar un producto tan innovador fue tanto un desafío como una recompensa.",
+  "occupation_msc_student": "Estudiante de Maestría en Ciencias de la Computación",
+
+  "features": "Características",
+  "team": "Equipo"
+
+}

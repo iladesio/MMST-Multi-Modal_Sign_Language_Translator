@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
+import { Trans, useTranslation } from "react-i18next";
 import FemaleIcon from "./FemaleIcon.png";
 import MaleIcon1 from "./male_icon.png";
 import MaleIcon2 from "./male_icon2.png";
@@ -17,48 +18,48 @@ const userTestimonials = [
   {
     avatar: MaleIcon1,
     name: "Daniele Solombrino",
-    occupation: "M.Sc. Computer Science Student",
-    testimonial:
-      "Collaborating on this project has been an incredible learning experience.",
+    occupation: "occupation_msc_student",
+    testimonial: "testimonial_daniele",
   },
   {
     avatar: FemaleIcon,
     name: "Ilaria De Sio",
-    occupation: "M.Sc. Computer Science Student",
-    testimonial:
-      "Designing with the user in mind is what I love, and this project put that passion to the test.",
+    occupation: "occupation_msc_student",
+    testimonial: "testimonial_ilaria",
   },
   {
     avatar: MaleIcon2,
     name: "Giuseppe Bello",
-    occupation: "M.Sc. Computer Science Student",
-    testimonial:
-      "Managing this project has been a journey in pushing the boundaries of efficiency and teamwork.",
+    occupation: "occupation_msc_student",
+    testimonial: "testimonial_giuseppe",
   },
   {
     avatar: MaleIcon3,
     name: "Federico Barreca",
-    occupation: "M.Sc. Computer Science Student",
-    testimonial:
-      "Ensuring the highest quality in our deliverables is my top priority, and this project was no exception.",
+    occupation: "occupation_msc_student",
+    testimonial: "testimonial_federico",
   },
   {
     avatar: MaleIcon4,
     name: "Matteo Mortella",
-    occupation: "M.Sc. Computer Science Student",
-    testimonial:
-      "Marketing such an innovative product was both challenging and rewarding.",
+    occupation: "occupation_msc_student",
+    testimonial: "testimonial_matteo",
   },
 ];
 
 export default function Testimonials() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const cardStyle = {
     backgroundColor: theme.palette.mode === "light" ? "#f9f9f9" : "#2c2c2c",
     boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
     borderRadius: 2,
     transition: "0.3s",
+    minHeight: "150px", // Imposta un'altezza minima per garantire dimensioni uniformi
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
     "&:hover": {
       transform: "translateY(-3px)",
       boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
@@ -77,25 +78,47 @@ export default function Testimonials() {
         gap: { xs: 3, sm: 6 },
       }}
     >
-      <Typography component="h2" variant="h4" color="text.primary" gutterBottom>
-        Meet Our Team
+      <Typography
+        component="h2"
+        variant="h4"
+        color="text.primary"
+        gutterBottom
+        sx={{
+          fontWeight: "bold",
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: 2,
+          mt: 4,
+          mb: 4,
+          position: "relative",
+          "&::after": {
+            content: '""',
+            display: "block",
+            width: "50px",
+            height: "4px",
+            backgroundColor: "primary.main",
+            margin: "8px auto 0",
+          },
+        }}
+      >
+        <Trans i18nKey="meet_our_team" />
       </Typography>
       <Grid container spacing={2} justifyContent="center">
         {userTestimonials.map((testimonial, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+          <Grid item xs={6} sm={2} md={4} key={index}>
             <Card sx={cardStyle}>
               <CardHeader
                 avatar={
-                  <Avatar src={testimonial.avatar} alt={testimonial.name} />
+                  <Avatar src={testimonial.avatar} alt={t(testimonial.name)} />
                 }
-                title={testimonial.name}
-                subheader={testimonial.occupation}
+                title={<Trans i18nKey={testimonial.name} />}
+                subheader={<Trans i18nKey={testimonial.occupation} />}
                 titleTypographyProps={{ variant: "h6" }}
                 subheaderTypographyProps={{ variant: "body2" }}
               />
               <CardContent>
                 <Typography variant="body2" color="text.secondary">
-                  {testimonial.testimonial}
+                  <Trans i18nKey={testimonial.testimonial} />
                 </Typography>
               </CardContent>
             </Card>

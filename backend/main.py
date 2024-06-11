@@ -169,6 +169,9 @@ async def sign_to_text(req: SignToText):
         utils.deleteFile(video_path)
         utils.deleteFolder(output_folder)
 
+        if len(images) == 0:
+            return {"error": "Impossible to extract frames from the input video. Please, upload an higher quality video."}
+        
         content = [
             {
                 "type": "text",
@@ -180,8 +183,9 @@ async def sign_to_text(req: SignToText):
 
         for image in images:
             content.append({"type": "image_url", "image_url": {"url": image}})
-
-        # content = [{"type": "text", "text": "Say hi"}]
+        
+        #UNCOMMENT FOR DEBUG (AVOID TO SPEND TOKENS)
+        #content = [{"type": "text", "text": "Say hi"}]
 
         client = OpenAI(api_key=os.environ.get("CHATGPT_API_KEY"))
 
@@ -257,6 +261,9 @@ async def sign_to_sign(req: SignToSign):
     sign_to_text_req = SignToText(base64Video=req.base64Video, src=req.src, trg="en")
     text_response = await sign_to_text(sign_to_text_req)
 
+    if "error" in text_response:
+        return text_response
+    
     # Extract the text from the sign_to_text response
     text = text_response["result"]
 

@@ -53,37 +53,54 @@ import cv2
 import numpy as np
 
 
-def extract_framesNEW(
-    video_path, output_folder, interval=0.2, sharpness_threshold=100.0
-):
+def extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=10.0):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    # Aprire il video
+    # Open the video
     vidcap = cv2.VideoCapture(video_path)
-    fps = 30  # Frame per second
-    frame_interval = int(fps * interval)  # Intervallo di frame per l'estrazione
+    if not vidcap.isOpened():
+        print("Error: Could not open video.")
+        return
+
+    fps = vidcap.get(cv2.CAP_PROP_FPS)  # Get the FPS value from the video
+    total_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    if fps == 0:
+        print("Error: FPS value is 0.")
+        return
+
+    frame_interval = int(fps * interval)  # Calculate frame interval for extraction
+    print(f"FPS: {fps}, Frame Interval: {frame_interval}, Total Frames: {total_frames}")
 
     frame_count = 0
     success = True
-    while success:
+    while success and frame_count < total_frames:
         success, image = vidcap.read()
-        if frame_count % frame_interval == 0 and success:
-            # Calcolare la nitidezza del frame
+        if not success:
+            print(f"Error: Failed to read frame at count {frame_count}.")
+            break
+
+        if frame_count % frame_interval == 0:
+            # Calculate the sharpness of the frame
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             laplacian_var = cv2.Laplacian(gray_image, cv2.CV_64F).var()
+            print(f"Frame {frame_count}: Laplacian Variance = {laplacian_var}")
 
             if laplacian_var > sharpness_threshold:
                 frame_path = os.path.join(output_folder, f"frame{frame_count:04d}.jpg")
-                cv2.imwrite(frame_path, image)  # Salva il frame come file JPG
+                cv2.imwrite(frame_path, image)  # Save the frame as a JPG file
+                print(
+                    f"Saved frame at count {frame_count} with sharpness {laplacian_var}"
+                )
 
         frame_count += 1
 
     vidcap.release()
+    print("Video processing complete.")
 
 
 # Funzione per estrarre i frame
-def extract_frames(video_path, output_folder, interval=0.5):
+def extract_frames_old(video_path, output_folder, interval=0.5):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
