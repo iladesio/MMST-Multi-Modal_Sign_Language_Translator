@@ -103,12 +103,13 @@ async def text_to_sign(req: TextToSign):
         return {"pose": pose_base64}
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error: Something went wrong. [ERROR: '"
-            + str(e)
-            + "']",
-        )
+        return {"error": "Translation failed. Try to change the input sentence."}
+        #raise HTTPException(
+        #    status_code=500,
+        #    detail="Internal Server Error: Something went wrong. [ERROR: '"
+        #    + str(e)
+        #    + "']",
+        #)
 
 
 # Object tha represents a SignToText request.
@@ -116,6 +117,7 @@ class SignToText(BaseModel):
     base64Video: str
     src: str
     trg: str
+    videoType: str
 
     # @validator('src')
     # def check_src(cls, value):
@@ -142,32 +144,50 @@ class SignToText(BaseModel):
 async def sign_to_text(req: SignToText):
 
     try:
+        
+        #check if video type is webm(recorded) or mp4 (uploaded)
+        if req.videoType == "mp4":
+            extension = "mp4" 
+        elif req.videoType == "webm":
+            extension = "webm"
+        else:
+            return {"error": "Invalid video format"}
+        
+        print(extension)
+        
 
+    
         # Decodifica la stringa base64
         video_data = base64.b64decode(req.base64Video)
 
         # Scrivi i dati decodificati in un file MP4
-        file_name = datetime.now().strftime("%Y_%m_%d_%H_%M_%S.mp4")
+        file_name = datetime.now().strftime("%Y_%m_%d_%H_%M_%S." + extension)
         video_path = f"tmp/{file_name}"
         with open(video_path, "wb") as video_file:
             video_file.write(video_data)
 
         output_folder = "./tmp/" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S_frames")
 
-        utils.extract_frames(video_path, output_folder)
+        if extension == "mp4":
+            utils.extract_frames_best_performing(video_path, output_folder)
 
-        # Legge i file estratti e li mette nella struttura `files`
-        images = []
-        for filename in os.listdir(output_folder):
-            if filename.endswith(".jpg"):
-                with open(os.path.join(output_folder, filename), "rb") as image_file:
-                    image_data = image_file.read()
-                    images.append(
-                        f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}"
-                    )
+            #extract frames from tmp folder
+            images = utils.extract_frames_from_folder(output_folder)
 
-        utils.deleteFile(video_path)
-        utils.deleteFolder(output_folder)
+            if len(images) == 0:
+                print("no frames. Trying lower function")
+                utils.extract_frames_low(video_path, output_folder)
+
+                images = utils.extract_frames_from_folder(output_folder)
+
+        else:
+            utils.extract_frames_low(video_path, output_folder)
+
+            #extract frames from tmp folder
+            images = utils.extract_frames_from_folder(output_folder)
+
+            #utils.deleteFile(video_path)
+            #utils.deleteFolder(output_folder)
 
         if len(images) == 0:
             return {"error": "Impossible to extract frames from the input video. Please, upload an higher quality video."}
@@ -177,7 +197,7 @@ async def sign_to_text(req: SignToText):
                 "type": "text",
                 "text": "Please analyze this sequence of frames extracted from a video. Behave like a translator. Answer absolutely and ONLY with a UNIQUE translation from "
                 + req.src
-                + " sign language to english, even if the answer is not accurate. Answer only with the translation, between two quotes, answer always even if the translation is inaccurate'",
+                + " sign language to english, even if the answer is not accurate. Answer only with the translation, between two quotes, answer always even if the translation is inaccurate. Focus on the hand of the speaker.'",
             }
         ]
 
@@ -230,7 +250,7 @@ class SignToSign(BaseModel):
     base64Video: str
     src: str
     trg: str
-
+    videoType: str
     # @validator("src")
     # def check_src(cls, value):
     #   if value not in constants.LANGUAGE_DICT:
@@ -254,11 +274,12 @@ class SignToSign(BaseModel):
 
 @app.post("/translate/sign_to_sign", status_code=200)
 async def sign_to_sign(req: SignToSign):
+
     # text = sign_to_text({"base64Video": req.base64Video, "src": req.src, "trg": req.trg})
     # video = await text_to_sign({"text": text, "src": "en", "trg": "bfi"})
 
     # Call sign_to_text and await its result
-    sign_to_text_req = SignToText(base64Video=req.base64Video, src=req.src, trg="en")
+    sign_to_text_req = SignToText(base64Video=req.base64Video, src=req.src, trg="en", videoType=req.videoType)
     text_response = await sign_to_text(sign_to_text_req)
 
     if "error" in text_response:

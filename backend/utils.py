@@ -4,6 +4,7 @@ import base64
 import os
 import cv2
 import shutil
+import numpy as np
 
 
 # this function creates the url of the GET request given the parameters and the url
@@ -48,12 +49,19 @@ def base64_to_audio(base64_audio, output_file_path):
         audio_file.write(audio_data)
 
 
-import os
-import cv2
-import numpy as np
+def extract_frames_from_folder(output_folder):
+    images = []
+    for filename in os.listdir(output_folder):
+        if filename.endswith(".jpg"):
+            with open(os.path.join(output_folder, filename), "rb") as image_file:
+                image_data = image_file.read()
+                images.append(
+                    f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}"
+            )
+    return images
 
 
-def extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=10.0):
+def extract_frames_best_performing(video_path, output_folder, interval=0.2, sharpness_threshold=100):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -100,7 +108,7 @@ def extract_frames(video_path, output_folder, interval=0.2, sharpness_threshold=
 
 
 # Funzione per estrarre i frame
-def extract_frames_old(video_path, output_folder, interval=0.5):
+def extract_frames_low(video_path, output_folder, interval=0.5):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 

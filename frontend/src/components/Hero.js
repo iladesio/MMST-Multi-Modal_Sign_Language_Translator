@@ -36,6 +36,8 @@ export default function Hero() {
   const [sourceText, setSourceText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [file, setFile] = useState(null);
+
+
   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
   const [isRecordingVideo, setIsRecordingVideo] = useState(false);
   const [audioSrc, setAudioSrc] = useState("");
@@ -88,6 +90,7 @@ export default function Hero() {
   };
 
   const handleTranslate = async () => {
+    resetTargetInputs();
     const newErrors = {};
 
     if (!sourceText && !file && !audioSrc && !recordedVideoUrl) {
@@ -102,18 +105,22 @@ export default function Hero() {
     const isTargetSignLanguage = signLanguages.includes(targetLanguage);
 
     if (isSourceSignLanguage && sourceText !== "") {
+      console.log("1")
       newErrors.sourceText = <Trans i18nKey="error0"> </Trans>;
       setErrors(newErrors);
       return;
     }
 
     if (isSourceSignLanguage && audioSrc !== "") {
+      console.log("2")
+
       newErrors.sourceText = <Trans i18nKey="error"> </Trans>;
       setErrors(newErrors);
       return;
     }
 
-    if (isSourceSignLanguage === false && (recordedVideoUrl || file)) {
+    if (isSourceSignLanguage === false && (recordedVideoUrl || uploadedVideoSrc)) {
+      console.log("3")
       newErrors.sourceText = <Trans i18nKey="error1"> </Trans>;
       setErrors(newErrors);
       return;
@@ -183,8 +190,9 @@ export default function Hero() {
       const response = await axios.post(url, requestBody, { headers });
       handleResponse(response, isTargetSignLanguage);
     } catch (error) {
-      console.error("Error during translation:", error);
-      console.error("Response Data:", error.response?.data);
+      console.log("Something went wrong. Error: " + error)
+      //console.error("Error during translation:", error);
+      //console.error("Response Data:", error.response.data);
     } finally {
       setIsLoading(false);
     }
@@ -223,7 +231,12 @@ export default function Hero() {
   };
 
   const createVideoRequest = async (videoSrc, src, trg) => {
-    if (file) videoSrc = URL.createObjectURL(file);
+    
+    var videoType = "webm"
+    if (file) {
+      videoSrc = URL.createObjectURL(file);
+      videoType = "mp4"
+    }
 
     const response = await fetch(videoSrc);
     const videoBlob = await response.blob();
@@ -240,12 +253,18 @@ export default function Hero() {
     console.log(base64Video);
     return {
       url: "http://localhost:8000/translate/sign_to_text",
-      requestBody: JSON.stringify({ base64Video, src, trg }),
+      requestBody: JSON.stringify({ base64Video, src, trg, videoType }),
       headers: { "Content-Type": "application/json" },
     };
   };
 
   const createSignToSignRequest = async (videoSrc, src, trg) => {
+    var videoType = "webm"
+    if (file) {
+      videoSrc = URL.createObjectURL(file);
+      videoType = "mp4"
+    }
+
     const response = await fetch(videoSrc);
     const videoBlob = await response.blob();
 
@@ -261,7 +280,7 @@ export default function Hero() {
     console.log(base64Video);
     return {
       url: "http://localhost:8000/translate/sign_to_sign",
-      requestBody: { base64Video, src, trg },
+      requestBody: { base64Video, src, trg, videoType },
       headers: { "Content-Type": "application/json" },
     };
   };
@@ -317,20 +336,24 @@ export default function Hero() {
   };
 
   const handleFileChange = (event) => {
+    resetInputs();
+    setTranslatedText("");
+    
     const file = event.target.files[0];
     if (file) {
+      console.log("file:" + file)
       const fileType = file.type.split("/")[0];
       if (fileType !== "video" && fileType !== "audio") {
         setErrors({ sourceText: <Trans i18nKey="error6"> </Trans> });
         return;
       }
       resetInputs();
+
       const fileUrl = URL.createObjectURL(file);
       console.log(fileUrl);
 
       if (fileType === "video") {
         setUploadedVideoSrc(fileUrl);
-        console.log("sono entrato");
       } else if (fileType === "audio") {
         setAudioSrc(fileUrl);
       }
@@ -514,6 +537,13 @@ export default function Hero() {
       waveSurferRef.current.destroy();
       waveSurferRef.current = null;
     }
+  };
+
+  const resetTargetInputs = () => {
+    setErrors({});
+    setTranslatedText("")
+    setVideoSrc("")
+
   };
 
   const handleSpeak = () => {
