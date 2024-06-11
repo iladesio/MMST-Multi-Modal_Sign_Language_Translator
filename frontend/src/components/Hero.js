@@ -91,7 +91,7 @@ export default function Hero() {
     const newErrors = {};
 
     if (!sourceText && !file && !audioSrc && !recordedVideoUrl) {
-      newErrors.sourceText = "Input is required";
+      newErrors.sourceText = <Trans i18nKey="error7"> </Trans>;
       setErrors(newErrors);
       return;
     }
@@ -102,22 +102,19 @@ export default function Hero() {
     const isTargetSignLanguage = signLanguages.includes(targetLanguage);
 
     if (isSourceSignLanguage && sourceText !== "") {
-      newErrors.sourceText =
-        "Cannot translate from sign language if textual input is given";
+      newErrors.sourceText = <Trans i18nKey="error0"> </Trans>;
       setErrors(newErrors);
       return;
     }
 
     if (isSourceSignLanguage && audioSrc !== "") {
-      newErrors.sourceText =
-        "Cannot translate from sign language if audio input is given";
+      newErrors.sourceText = <Trans i18nKey="error"> </Trans>;
       setErrors(newErrors);
       return;
     }
 
     if (isSourceSignLanguage === false && (recordedVideoUrl || file)) {
-      newErrors.sourceText =
-        "Cannot translate from spoken language if video input is given";
+      newErrors.sourceText = <Trans i18nKey="error1"> </Trans>;
       setErrors(newErrors);
       return;
     }
@@ -139,7 +136,7 @@ export default function Hero() {
       }
     } else if (audioSrc) {
       if (!audioSrc) {
-        newErrors.audioSrc = "Audio input is required for audio translation";
+        newErrors.audioSrc = <Trans i18nKey="error2"> </Trans>;
         setErrors(newErrors);
         setIsLoading(false);
         return;
@@ -151,7 +148,7 @@ export default function Hero() {
       ));
     } else if (recordedVideoUrl || file) {
       if (!recordedVideoUrl && !file) {
-        newErrors.videoSrc = "Video input is required for video translation";
+        newErrors.videoSrc = <Trans i18nKey="error3"> </Trans>;
         setErrors(newErrors);
         setIsLoading(false);
         return;
@@ -176,7 +173,7 @@ export default function Hero() {
         ));
       }
     } else {
-      newErrors.sourceText = "Unsupported input type";
+      newErrors.sourceText = <Trans i18nKey="error4"> </Trans>;
       setErrors(newErrors);
       setIsLoading(false);
       return;
@@ -294,8 +291,7 @@ export default function Hero() {
           newErrors.sourceText = "Error: " + response.data.error;
           setErrors(newErrors);
         } else {
-          newErrors.sourceText =
-            "Internal Server Error - Something went wrong during the translation";
+          newErrors.sourceText = <Trans i18nKey="error5"> </Trans>;
           setErrors(newErrors);
         }
       }
@@ -304,8 +300,7 @@ export default function Hero() {
         newErrors.sourceText = "Error: " + response.data.error;
         setErrors(newErrors);
       } else {
-        newErrors.sourceText =
-          "Internal Server Error - Something went wrong during the translation";
+        newErrors.sourceText = <Trans i18nKey="error5"> </Trans>;
         setErrors(newErrors);
       }
     }
@@ -326,7 +321,7 @@ export default function Hero() {
     if (file) {
       const fileType = file.type.split("/")[0];
       if (fileType !== "video" && fileType !== "audio") {
-        setErrors({ sourceText: "Only video and audio files are allowed" });
+        setErrors({ sourceText: <Trans i18nKey="error6"> </Trans> });
         return;
       }
       resetInputs();

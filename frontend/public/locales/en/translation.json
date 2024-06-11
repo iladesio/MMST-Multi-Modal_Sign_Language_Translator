@@ -44,6 +44,16 @@
   "occupation_msc_student": "M.Sc. Computer Science Student",
 
   "features": "Features",
-  "team": "Team"
+  "team": "Team",
+  "error":"Cannot translate from sign language if audio input is given",
+  "error0":"Cannot translate from sign language if textual input is given",
+  "error1":"Cannot translate from spoken language if video input is given",
+  "error2":"Audio input is required for audio translation",
+  "error3":"Video input is required for video translation",
+  "error4":"Unsupported input type",
+  "error5":"Internal Server Error - Something went wrong during the translation",
+  "error6": "Only video and audio files are allowed",
+  "error7":"Input is required"
+
 
 }

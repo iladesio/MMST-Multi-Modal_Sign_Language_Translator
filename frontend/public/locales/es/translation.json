@@ -44,6 +44,17 @@
   "occupation_msc_student": "Estudiante de Maestría en Ciencias de la Computación",
 
   "features": "Características",
-  "team": "Equipo"
+  "team": "Equipo",
+
+  "error": "No se puede traducir desde el lenguaje de señas si se proporciona entrada de audio",
+  "error0": "No se puede traducir desde el lenguaje de señas si se proporciona entrada textual",
+  "error1": "No se puede traducir desde un idioma hablado si se proporciona entrada de video",
+  "error2": "Se requiere entrada de audio para la traducción de audio",
+  "error3": "Se requiere entrada de video para la traducción de video",
+  "error4": "Tipo de entrada no compatible",
+  "error5": "Error Interno del Servidor - Algo salió mal durante la traducción",
+  "error6": "Solo se permiten archivos de video y audio",
+  "error7": "Se requiere entrada"
+  
 
 }

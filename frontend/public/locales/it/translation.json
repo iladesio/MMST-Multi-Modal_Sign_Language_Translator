@@ -3,12 +3,12 @@
   "description": "Il tuo traduttore di lingua dei segni in tasca.",
   "how_to_use": "Come usare il traduttore",
   "step1": "1. Seleziona le <1>Lingue e Modalità di Origine</1> e <1>Destinazione</1>.",
-  "step2": "2. Inserisci il <1>Testo</1> nella casella, carica un <1>File</1> o registra un <1>Discorso</1> o <1>Segni</1>.",
+  "step2": "2. Inserisci il <1>Testo</1> nella casella, carica un <1>File</1> o registra un <1>Audio</1> o <1>Segni</1>.",
   "step3": "3. Clicca su <1>Traduci</1> per ottenere la traduzione.",
   "step4": "4. Clicca su <1>Ripristina</1> per cancellare la traduzione corrente e iniziare una nuova.",
   "translate": "Traduci",
   "upload_file": "Carica File",
-  "record_speech": "Registra Discorso",
+  "record_speech": "Registra Audio",
   "record_signs": "Registra Segni",
   "reset": "Ripristina",
   "src-in": "Lingua d'origine e Modalità",
@@ -44,5 +44,17 @@
   "occupation_msc_student": "Studente Magistrale in Informatica",
 
   "features": "Funzionalità",
-  "team": "Team"
+  "team": "Team",
+
+  "error": "Non è possibile tradurre dalla lingua dei segni se è fornito un input audio",
+  "error0": "Non è possibile tradurre dalla lingua dei segni se è fornito un input testuale",
+  "error1": "Non è possibile tradurre da una lingua parlata se è fornito un input video",
+  "error2": "È richiesto un input audio per la traduzione audio",
+  "error3": "È richiesto un input video per la traduzione video",
+  "error4": "Tipo di input non supportato",
+  "error5": "Errore del server interno - Qualcosa è andato storto durante la traduzione",
+  "error6": "Sono consentiti solo file video e audio",
+  "error7": "È richiesto un input"
+  
+  
 }
