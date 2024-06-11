@@ -54,7 +54,10 @@
   "error4": "Tipo de entrada no compatible",
   "error5": "Error Interno del Servidor - Algo salió mal durante la traducción",
   "error6": "Solo se permiten archivos de video y audio",
-  "error7": "Se requiere entrada"
+  "error7": "Se requiere entrada",
+
+  "recording_speech": "Grabación de audio",
+  "recording_signs": "Grabación de signos"
   
 
 }

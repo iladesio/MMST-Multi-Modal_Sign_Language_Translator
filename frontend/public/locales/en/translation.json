@@ -53,7 +53,9 @@
   "error4":"Unsupported input type",
   "error5":"Internal Server Error - Something went wrong during the translation",
   "error6": "Only video and audio files are allowed",
-  "error7":"Input is required"
+  "error7":"Input is required",
 
+  "recording_speech": "Recording Speech",
+  "recording_signs":"Recording Signs"
 
 }

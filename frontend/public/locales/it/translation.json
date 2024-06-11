@@ -54,7 +54,10 @@
   "error4": "Tipo di input non supportato",
   "error5": "Errore del server interno - Qualcosa è andato storto durante la traduzione",
   "error6": "Sono consentiti solo file video e audio",
-  "error7": "È richiesto un input"
+  "error7": "È richiesto un input",
+
+  "recording_speech": "Registrazione Audio",
+  "recording_signs":"Registrazione Video"
   
   
 }
