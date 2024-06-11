@@ -56,7 +56,7 @@ export default function Testimonials() {
     boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
     borderRadius: 2,
     transition: "0.3s",
-    minHeight: "150px", // Imposta un'altezza minima per garantire dimensioni uniformi
+    minHeight: "180px", // Imposta un'altezza minima per garantire dimensioni uniformi
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
