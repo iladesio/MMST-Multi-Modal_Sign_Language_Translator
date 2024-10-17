@@ -42,22 +42,24 @@ You can run the front-end after having installed all the backend's requirements.
 
 ```bash
 fastapi dev main.py
-
+```
 You also need Node.js to run the npm commands. You can download it from: https://nodejs.org/.
 
 The following npm install instruction can be skipped after the first launch.
 
 Then, on another terminal, open in the main folder. If you want to run the frontend, run:
+```bash
 cd frontend
 npm install package.json
 npm install wavesurfer.js
 npm start
-
+```
 and go to your browser.
 
 If an error is returned regarding FFmpeg, then in the terminal type:
+```bash 
 pip install FFmpeg
-
+```
 
 ## Contributions
 
